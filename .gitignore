@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.bun-cache/
+
+# Build output
+client/dist/
+client/pwa-dist/
+pages-dist/
+server/dist/
+dist/
+
+# Local environment / secrets — NEVER commit these.
+# (.env.example is the exception: it holds variable names with empty
+# placeholders only, and it IS committed on purpose.)
+.env
+.env.*
+!.env.example
+*.local
+.dev.vars
+.dev.vars.*
+
+# Editor / OS noise
+.DS_Store
+.vscode/
+.idea/
+*.tsbuildinfo
+
+# Logs
+*.log

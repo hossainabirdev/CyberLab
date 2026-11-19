@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="CyberLab — hands-on cybersecurity learning: 248 lessons, labs, missions and CTF across Levels 0–31, in English and Bangla." />
+    <!-- PWA: installable, standalone, offline shell. theme_color matches
+         the app's own themes — warm paper in light mode (the primary),
+         Ink Navy in dark mode. -->
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0B1220" />
+    <meta name="theme-color" content="#FFF8EC" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CyberLab" />
+    <!-- The manifest + icon <link> tags are added by client/src/pwa.ts at
+         startup: the HTML bundler resolves static link hrefs as bundle
+         assets (and would hash their names), while a manifest and its
+         icons must live at stable URLs. Dynamically added manifest links
+         are honoured by installability checks exactly like static ones. -->
+    <title>CyberLab</title>
+    <script src="./src/main.tsx" type="module"></script>
+  </head>
+  <body>
+    <div
+      data-generated-space-root=""
+      data-generated-space-slug="cyberlab"
+    ></div>
+  </body>
+</html>

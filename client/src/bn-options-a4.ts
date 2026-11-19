@@ -1,0 +1,198 @@
+// Bangla answer options — Levels 7–11 lesson quizzes + practicals.
+export const QUIZ_OPTIONS_A4: Record<string, (string | undefined)[][]> = {
+  "l7-tool-methodology": [
+    ["সঙ্গে সঙ্গে একটি critical vulnerability report করো", "Distro-র patch level যাচাই করো — Debian banner না বদলে fix backport করে", "নিশ্চিত হতে exploit করো", "Nmap চিরদিন উপেক্ষা করো"],
+    ["তোমার university network", "Host-only network-এ তোমার নিজের lab VM", "একটি এলোমেলো ছোট ব্যবসার site", "সরকারি portal"],
+    ["App নিরাপদ", "Scanner যেসব সমস্যা যাচাই করতে জানে তার কোনোটিই পাওয়া যায়নি — logic আর authz ত্রুটি থাকতে পারে", "Compliance", "কোনো pentest লাগবে না"],
+  ],
+  "l7-nmap": [
+    ["Port নিশ্চিতভাবে বন্ধ", "Probe ফেলে দেওয়া হয়েছে (সম্ভবত firewall) — Nmap বাইরে থেকে open/closed নির্ধারণ করতে পারে না", "Service crash করেছে", "Host বন্ধ"],
+    ["সঙ্গে সঙ্গে Critical হিসেবে", "শুধু package changelog যাচাই করার পর — Debian banner version না বদলে patch backport করে", "কখনোই নয়; banner অকেজো", "একটি exploit চালানোর পর"],
+    ["Nmap-এর তা দরকার", "এটি লিখিত অনুমোদনের প্রমাণ যা একই packet-কে অননুমোদিত না রেখে পেশাদার বানায়", "এটি scan দ্রুত করে", "এটি report-এর সাজসজ্জা"],
+  ],
+  "l7-wireshark": [
+    ["তারা একই syntax", "Capture (BPF) সিদ্ধান্ত নেয় কী record হবে; display সিদ্ধান্ত নেয় recording থেকে কী দেখবে — ভিন্ন ভাষা, ভিন্ন মুহূর্ত", "Display filter packet স্থায়ীভাবে মোছে", "Capture filter save করার পর চলে"],
+    ["Page-এর বিষয়বস্তু", "Metadata: endpoint, timing, আকার, SNI, handshake তথ্য — content নকশা অনুযায়ী encrypted", "Site HTTP/2 হলে ব্যবহারকারীর password", "মোটেই কিছুই নয়"],
+    ["যেকোনো খোলা Wi-Fi-তে, read-only", "তোমার নিজের device/lab interface-এ, অথবা যেখানে লিখিত অনুমোদন নাম দেয়", "কর্মক্ষেত্রে কারণ তুমি IT-কৌতূহলী", "পরে মুছে ফেললে"],
+  ],
+  "l7-burp-zap": [
+    ["Machine-এর প্রতিটি browser-এ", "শুধু dedicated testing profile-এ — তোমার দৈনন্দিন browser কখনো proxy CA বিশ্বাস করবে না", "Server-এ", "Training app-এ"],
+    ["তারা একই", "Community-তে Burp-র Scanner নেই আর Intruder throttle করা; ZAP সম্পূর্ণ free, স্বয়ংক্রিয় scanner-সহ — দুটোই intercept আর replay করে", "ZAP paid", "Burp Community HTTPS intercept করতে পারে না"],
+    ["এটি লাল রঙের", "তুমি scope-এর ভেতরের app-এর বিরুদ্ধে হাতে replay করে আচরণ নিশ্চিত করো, অথবা যুক্তিসহ false-positive রায় লেখো", "এটি দুইবার আসে", "Report export হয়"],
+  ],
+  "l7-curl-openssl-git": [
+    ["কিছুই নয় — এটি মোছা হয়েছে", "Secret rotate/revoke করো এবং history scrub করো — HEAD থেকে মোছা secret-কে history আর clone-এ রেখে দেয়", "File-এর নাম বদলাও", "Repo private করে নিশ্চিন্ত হও"],
+    ["HTTPS-এর জন্য দরকার", "Certificate যাচাই নিষ্ক্রিয় করে — এটি পরীক্ষাধীন control-টিই মুছে দেয় আর আসল check-এ কখনো টিকে থাকতে পারে না", "TLS দ্রুত করে", "এটি একটি Burp feature"],
+    ["Site সামগ্রিকভাবে নিরাপদ", "উপস্থাপিত certificate chain সেই handshake-এর জন্য trust store-এর বিরুদ্ধে যাচাই হয়েছে — একটি তথ্য, নির্ভুলভাবে scoped", "কোনো vulnerability নেই", "TLS 1.3 ব্যবহার হচ্ছে"],
+  ],
+  "l7-detection-scanning-tools": [
+    ["Zeek Suricata-র নতুন সংস্করণ", "Suricata rule দিয়ে traffic-এ alert করে; Zeek বিশ্লেষণ আর detection-এর জন্য সমৃদ্ধ protocol log তৈরি করে — পরিপূরক", "Zeek file scan করে", "Suricata Sigma লেখে"],
+    ["স্বয়ংক্রিয়ভাবে একটি breach", "একটি triage item: reachability/exposure যাচাই করো, তারপর ঠিক করো, তারিখসহ মেনে নাও, অথবা dependency সরাও — যুক্তি লিখে রেখে", "সবসময় উপেক্ষাযোগ্য", "সংজ্ঞা অনুযায়ী false positive"],
+    ["'# nosec' যোগ করে এগিয়ে যাও", "Argument list-সহ subprocess.run, shell ছাড়া (Level 4 Python assessment pattern) — code ঠিক করো, warning নয়", "Variable-এর নাম বদলাও", "Bandit কম চালাও"],
+  ],
+  "l8-access-control-sqli": [
+    ["দুর্বল password", "String concatenation দিয়ে query বানানোয় ব্যবহারকারীর input SQL syntax হিসেবে ব্যাখ্যা পায়", "HTTPS অনুপস্থিত", "পুরোনো database"],
+    ["Rest-এ encryption", "প্রতি object-এ server-side ownership (authorization) check", "লম্বা session cookie", "CAPTCHA"],
+    ["Page ঠিক দেখাচ্ছে কিনা যাচাই করো", "স্বয়ংক্রিয় test: user B user A-র object চাইলে 403/404 পেতেই হবে", "ব্যবহারকারীদের চেষ্টা না করতে বলো", "URL থেকে ID দৃশ্যত সরাও"],
+  ],
+  "l8-crypto-failures": [
+    ["MD5 আসল hash নয়", "দ্রুত + unsalted: GPU guessing আর rainbow table পুরো column crackযোগ্য করে — salted slow KDF ব্যবহার করো (Argon2id/bcrypt/scrypt)", "Column খুব ছোট", "Password বরং app key দিয়ে encrypt করা উচিত"],
+    ["একটি performance optimization", "একটি A02 finding: TLS identity যাচাই নিষ্ক্রিয়, তাই উপস্থাপিত যেকোনো certificate গৃহীত হয়", "HTTPS-এর জন্য দরকার", "যাচাইয়ের চেয়ে নিরাপদ"],
+    ["নিরাপদ — মোছা হয়েছে", "উন্মুক্ত: কপি হয়েছে ধরে নাও; আগে rotate/revoke করো, তারপর history scrub করো", "Repo এখন private হলে নিরাপদ", "শুধু কেউ দেখেছে স্বীকার করলেই উন্মুক্ত"],
+  ],
+  "l8-injection-deep": [
+    ["Database পুরোনো", "অবিশ্বস্ত input একটি command/query string-এ আঠা দিয়ে লাগানো হয় আর data-র বদলে syntax হিসেবে parse হয়", "Password দুর্বল", "Firewall 443 port অনুমোদন করে"],
+    ["'OR' শব্দ নিষিদ্ধ করা", "প্রতিটি query-তে parameterized query / prepared statement", "শুধু error message লুকানো", "লম্বা table নাম"],
+    ["Page load হয়", "আসল payload ব্যর্থ হয় এবং একটি বৈধ login এখনো সফল হয়", "Code-এ কোনো comment নেই", "Database backup করা"],
+  ],
+  "l8-insecure-design": [
+    ["একটি typo bug", "একটি insecure-design ত্রুটি (A04): specification-এই expiry আর single-use শর্ত নেই", "একটি network সমস্যা", "Code পরিষ্কার হলে ত্রুটি নয়"],
+    ["Hash ছোট", "তখন ফাঁস হওয়া token table-এ ব্যবহারযোগ্য কিছু থাকে না — token হলো credential আর credential-এর আচরণই পায়", "Disk বাঁচাতে", "কারণ email encrypted"],
+    ["সম্পূর্ণ", "সাজসজ্জা — প্রতিটি row শেষ হতে হবে FIX (মালিকসহ) অথবা ACCEPT (তারিখ আর নামসহ) দিয়ে", "একটি scanner ফলাফল", "একটি compliance pass"],
+  ],
+  "l8-misconfig-headers": [
+    ["সবচেয়ে শক্ত policy", "প্রায় সাজসজ্জা: এটি inline script আর eval অনুমোদন করে, প্রধান XSS payload আকৃতিগুলো — আসল policy source-এর নাম দেয় আর unsafe-* ফেলে দেয়", "অবৈধ syntax", "Image-এর জন্য দরকার"],
+    ["প্রথম ভিজিট encrypt করা", "Browser-কে একটি সময়ের জন্য host-এ শুধু HTTPS ব্যবহার করতে নির্দেশ — পরে HTTP-তে downgrade রোধ করে", "Cookie block করা", "Server version লুকানো"],
+    ["একটি tautology SQL query", "Framework debug mode আর default admin credential নিয়ে চলা production", "একটি অনুপস্থিত owner check", "একটি unencoded output"],
+  ],
+  "l8-xss": [
+    [],
+    ["একটি WAF keyword তালিকা", "প্রসঙ্গ-উপযোগী output encoding (আর DOM code-এ textContent) যাতে data কখনো markup হিসেবে parse না হয়", "লম্বা cookie", "Page source লুকানো"],
+    ["এটি page encrypt করে", "Unencoded data page-এ পৌঁছালেও inline script/event handler চলবে না — encoding-এর পেছনে দ্বিতীয় দেয়াল", "এটি সব আক্রমণ block করে", "এটি output encoding-এর বদলি"],
+  ],
+  "l8-csrf-ssrf": [
+    ["তোমার site-এ attacker-এর JavaScript চালায়", "একটি জাল cross-site request-এ site-এর cookie স্বয়ংক্রিয়ভাবে জুড়ে দেয়, আর token ছাড়া server আলাদা করতে পারে না", "Site-গুলোর মধ্যে password ভাগ করে", "TLS নিষ্ক্রিয় করে"],
+    ["Duplicate — একটি বেছে নাও", "Layer: SameSite বেশিরভাগ cross-site POST-এ cookie আটকে রাখে; token form-এর উৎস প্রমাণ করে — একসাথে তারাই standard defense", "SameSite HTTPS-এর বদলি", "Token cookie-র বদলি"],
+    ["'localhost' string block করা", "একটি স্পষ্ট destination allowlist + resolved-IP check + egress rule", "দ্রুত timeout", "UI-তে feature লুকানো"],
+  ],
+  "l8-auth-failures": [
+    ["অভদ্রতা", "Account enumeration: attacker credential stuffing-এর জন্য বৈধ username সংগ্রহ করে — একটি generic error ব্যবহার করো", "এটি login ধীর করে", "কিছুই নয় — সহায়ক UX"],
+    ["Lockout অবৈধ", "স্থায়ী lockout attacker-কে যেকোনো victim-এর account ইচ্ছামতো freeze করতে দেয় — throttling সেই অস্ত্র না দিয়েই stuffing ভোঁতা করে", "Cool-off সস্তা", "ব্যবহারকারীরা security অপছন্দ করে"],
+    ["সুবিধার জন্য কাজ চালিয়ে যাও", "সব বাতিল হবে, আর পরের login-এ নতুন session জারি হবে", "পরের মাসে মেয়াদ শেষ", "ব্যবহারকারীকে email করা হবে"],
+  ],
+  "l9-network-defense": [
+    ["শুধু জানা-খারাপ traffic block করো", "স্পষ্টভাবে অনুমোদিত নয় এমন সবকিছু block করো", "সব log করো, সব অনুমোদন করো", "শুধু weekend-এ deny করো"],
+    ["Performance", "Compromised host-এর command-and-control আর exfiltration-এর জন্য এখনো বাইরের পথ লাগে — egress control দুটোই কাটে", "Compliance কাগজপত্র", "এটি দরকার নয়"],
+    ["সস্তা", "Inline বসে traffic block করতে পারে, শুধু alert নয়", "কোনো signature ব্যবহার করে না", "শুধু Wi-Fi দেখে"],
+  ],
+  "l9-firewall-rules": [
+    ["Firewall ঘুমাতে পারে", "Host যে connection শুরু/গ্রহণ করেছে তার reply পাস হয়, আর নতুন inbound প্রচেষ্টার জন্য এখনো স্পষ্ট rule লাগে", "সব port নিরাপদে খোলা", "Logging ঐচ্ছিক"],
+    ["সবচেয়ে নির্দিষ্ট আগে, স্বয়ংক্রিয়ভাবে", "উপর থেকে নিচে, প্রথম match-ই জেতে — ক্রম logic-এর অংশ", "বর্ণানুক্রমে", "Port নম্বর অনুযায়ী"],
+    ["আত্মবিশ্বাস", "একটি snapshot/console পথ এবং একটি স্বয়ংক্রিয় rollback timer যা তুমি বাতিল না করলে পুরোনো ruleset ফিরিয়ে দেয়", "দ্বিতীয় একজন admin", "দুইবার apply করা"],
+  ],
+  "l9-ids-suricata": [
+    ["Vendor", "IPS-এর জন্য inline অবস্থান + drop ক্ষমতা — যা false positive-কে availability ঝুঁকি বানায়, তাই rule alert-first পাস করে ওঠে", "IPS শুধু wireless", "IDS কোনো rule ব্যবহার করে না"],
+    ["HTTPS decrypt করে", "Matching-কে HTTP request URI buffer-এ সীমিত করে — নির্ভুলতা যা body/header false positive রোধ করে", "Port set করে", "Rule-এর নাম দেয়"],
+    ["Rule মুছে ফেলো", "সেই alert চিরদিন মনে মনে উপেক্ষা করো", "একটি scoped suppression (rule + সেই source) কারণ, মালিক আর review তারিখসহ — অন্য সব source-এর জন্য detection থাকে", "রাতে Suricata বন্ধ করো"],
+  ],
+  "l9-vpn-tls": [
+    ["Endpoint malware-মুক্ত", "দুই tunnel প্রান্তের মধ্যে তারে থাকা traffic-এর confidentiality, integrity আর peer authentication", "প্রতিটি internal app-এর অনুমোদন", "নিয়োগদাতার কাছ থেকে anonymity"],
+    ["CA খুব পুরোনো", "Hostname অমিল: ভিজিট করা নাম certificate-এর SAN তালিকায় নেই", "TLS খুব নতুন", "Key RSA"],
+    ["Client-এ যাচাই নিষ্ক্রিয় করো", "কোন check ব্যর্থ হয়েছে নির্ণয় করো (chain / নাম / মেয়াদ) আর certificate বা configuration ঠিক করো", "HTTP ব্যবহার করো", "CA reboot করো"],
+  ],
+  "l9-wireless": [
+    ["দ্রুত গতি", "Captured handshake থেকে offline password guessing প্রতিরোধ, পাশাপাশি forward secrecy", "SSID লুকানো", "Password সরানো"],
+    ["শক্তিশালী signal", "802.1X with EAP-TLS আর client-এ কঠোর server-certificate যাচাই — যমজটি আসল authentication server-এর certificate উপস্থাপন করতে পারে না", "লুকানো SSID", "MAC filtering"],
+    ["সংজ্ঞা অনুযায়ী এটি ছোট", "সবাই একই অভিন্ন insider — প্রতি-ব্যবহারকারী জবাবদিহি নেই আর একজন ছেড়ে-যাওয়ার access পরিষ্কারভাবে প্রত্যাহার করার উপায় নেই", "Wi-Fi এটি নিষেধ করে", "এটি AP ধীর করে"],
+  ],
+  "l9-monitoring-zeek": [
+    ["Traffic block করে", "পরের বিশ্লেষণের জন্য structured transaction log তৈরি করে (আগে প্রমাণ; alerting তার উপরে layered)", "Traffic encrypt করে", "Firewall-এর বদলি"],
+    ["Compromised প্রমাণিত", "কোনো reply ছাড়া connection প্রচেষ্টা দেখায় — একটি scanning/dead-target footprint যা যেকোনো রায়ের আগে প্রসঙ্গ দাবি করে", "Web server-এর জন্য স্বাভাবিক", "একটি DNS ব্যর্থতা"],
+    [],
+  ],
+  "l10-windows-hardening": [
+    ["Click করা দ্রুত", "Setting কেন্দ্রীয়ভাবে সংজ্ঞায়িত আর ক্রমাগত পুনঃপ্রতিষ্ঠিত — drift জমার বদলে সংশোধিত হয়", "এটি admin-দের থেকে setting লুকায়", "এটি antivirus-এর বদলি"],
+    ["Compatibility-র জন্য চালু", "নিষ্ক্রিয়/অনুপস্থিত — একটি অপ্রচলিত protocol প্রজন্ম যা শুধু attack surface হিসেবেই বেঁচে আছে", "শুধু weekend-এ চালু", "FTP দিয়ে বদলি"],
+    ["Admin senior হলে ঠিক আছে", "একটি ইচ্ছা — প্রমাণ হলো একই audit থেকে before/after পার্থক্য", "একটি compliance pass", "মাপা যায় এমন কিছুর চেয়ে ভালো"],
+  ],
+  "l10-linux-hardening": [
+    ["শুধু ধীর login", "Attribution: প্রতিটি privileged কাজ log-এ একজন মানুষের নাম বহন করে, আর সবচেয়ে বেশি অনুমান করা account network থেকে সম্পূর্ণ বাইরে", "Encryption", "কিছুই নয় — root এখনো আছে"],
+    ["এটি দ্রুত", "sudoers-এ syntax error সব privilege escalation আটকে দিতে পারে; visudo install করার আগে যাচাই করে", "এটি text-এ রঙ দেয়", "আইনত sudo-র তা দরকার"],
+    ["File বদলানো যায় না", "Identity-critical file-এর বদল timestamp-সহ, attributed record তৈরি করে — যেকোনো incident দরকার হওয়ার আগেই তৈরি প্রমাণ", "Backup স্বয়ংক্রিয়", "sudo অপ্রয়োজনীয়"],
+  ],
+  "l10-edr-sysmon": [
+    ["বড় signature file", "আচরণগত telemetry (process/network/DNS timeline) পাশাপাশি response action — শুধু file না মিলিয়ে কার্যকলাপ দেখা আর উত্তর দেওয়া", "দ্রুত scan", "Cloud storage"],
+    [undefined, "Event 1 (ProcessCreate) — Image, CommandLine, ParentImage এক record-এ", undefined, undefined],
+    ["ভালো tuning", "একটি চোখ-বাঁধা: সবচেয়ে বেশি অপব্যবহৃত বৈধ binary অদৃশ্য হয়ে যায় — exclusion সংকীর্ণ আর নামকৃত হতে হবে", "Performance-এর জন্য দরকার", "Vendor-রা যা সুপারিশ করে"],
+  ],
+  "l10-patch-scanning": [
+    ["একটি নিশ্চিত breach", "যাচাই করার মতো একটি দাবি: উপস্থিতি, reachability, exposure আর fix-এর প্রাপ্যতা কাজ নির্ধারণ করে", "অবহেলার প্রমাণ", "সংখ্যা দিয়ে বন্ধ করার একটি ticket"],
+    ["সমস্যা লুকানো", "প্রথমে সেসব finding-এ মনোযোগ যেগুলোর প্রকাশিত fix আছে — যে কাজ এখন সত্যিই শেষ করা যায়", "Scan দ্রুত করা", "CVE মোছা"],
+    ["Change ticket", "আসল artifact থেকে finding চলে গেছে দেখানো rescan", "Vendor email", "Meeting note"],
+  ],
+  "l10-encryption-backup": [
+    ["চুরি হওয়া, বন্ধ laptop offline পড়া", "Unlocked, logged-in system-এর ভেতরে চলা malware — FDE হলো at-rest সুরক্ষা, access control নয়", "হারানো unencrypted backup drive", "Offline forensic imaging"],
+    ["Encrypt → পরে key খোঁজো", "Backup → recovery key escrow করো → চালু করো → ProtectionStatus On যাচাই করো", "চালু করো → কাউকে বোলো না", "Setting-এর screenshot নাও"],
+    ["Job-এর সাফল্য email", "একটি তারিখসহ restore test: data scratch-এ restore করে পড়নযোগ্য যাচাই করা", "Backup file-এর আকার", "Vendor-এর logo"],
+  ],
+  "l10-endpoint-ir": [
+    ["Reboot → scan → সংগ্রহ", "ঘোষণা + সময় লেখো → volatile প্রমাণ সংগ্রহ → contain (network বিচ্ছিন্ন) → scope", "Format → reinstall → report", "ব্যবহারকারীকে নীরবে কাজ চালিয়ে যেতে বলো"],
+    ["Click করা দ্রুত", "ছড়ানো থামায় আর memory-তে থাকা প্রমাণ সংরক্ষণ করে — power-off volatile record ধ্বংস করে", "ব্যবহারকারীকে খুশি রাখে", "কাগজপত্র এড়ায়"],
+    ["সংগ্রহের আগে, source file-এ", "শেষে, শেষ হওয়া সংগৃহীত artifact-এর উপরে — প্রমাণ করে bundle নিজে তারপর থেকে বদলায়নি", "কখনোই নয় — CSV hash করা যায় না", "সন্দেহভাজন process দিয়ে"],
+  ],
+  "l11-auth-mfa": [
+    ["Password + মায়ের কুমারী নাম", "Password + authenticator app থেকে TOTP", "দুটি password", "Password + একটি লম্বা password"],
+    ["প্রতি 30 দিনে দরকার", "দরকার করো না — rotation নাটক দুর্বল, অনুমানযোগ্য password তৈরি করে; compromise-এর প্রমাণে বদলাও", "বার্ষিক দরকার", "শুধু admin-দের জন্য"],
+    ["ব্যবহারকারীরা সতর্ক", "Credential cryptographically আসল origin-এর সঙ্গে বাঁধা — lookalike site-কে দেওয়ার মতো লেখা যায় এমন কিছু নেই", "তারা দ্রুত মেয়াদোত্তীর্ণ হয়", "তারা লম্বা code ব্যবহার করে"],
+  ],
+  "l11-oauth-oidc": [
+    ["Code encrypted", "Redeem করতে code_verifier লাগে, যার hash — secret নয় — আগে পাঠানো হয়েছিল; চুরি হওয়া code একা কিছুই redeem করে না", "Code 10 সেকেন্ডে মেয়াদোত্তীর্ণ হয়", "IdP app-কে বিশ্বাস করে"],
+    ["শুধু format", "ID token = client-এর জন্য যাচাইকৃত পরিচয় বিবৃতি (OIDC); access token = API-র জন্য scoped অনুমতি slip (OAuth) — তাদের কাজ বদলানো একটি classic vulnerability", "Access token signed, ID token নয়", "ID token বেশিদিন থাকে"],
+    ["সুবিধাজনক আর ঠিক আছে", "একটি token-চুরির configuration: শুধু exact-match, কারণ loose matching attacker-নিয়ন্ত্রিত path-কে code পেতে দেয়", "Mobile-এর জন্য দরকার", "একটি IdP default"],
+  ],
+  "l11-saml-sso": [
+    ["গৃহীত — signature আসল", "প্রত্যাখ্যাত: AudienceRestriction অন্য SP-র নাম দেয়; অন্য কারো login সম্পর্কে সত্য বিবৃতি তোমার ব্যবহারের নয়", "মেয়াদ থাকলে গৃহীত", "সেই SP-কে পাঠানো হয়েছে"],
+    ["হাতে লেখা XPath check", "Metadata certificate-এর বিরুদ্ধে একটি রক্ষণাবেক্ষণকৃত, hardened SAML library দিয়ে — XML signature wrapping হাতে-বানানো parser-কে শাস্তি দেয়", "HTTPS-এর আড়ালে বাদ দেওয়া", "Browser করে"],
+    ["SAML, সবসময়", "OIDC — JSON token, PKCE-hardened flow, native-app pattern; SAML থাকে যেসব enterprise estate এরই মধ্যে তা বলে তাদের জন্য", "কোনোটিই নয় — custom cookie", "Plain HTTP-র উপর SAML"],
+  ],
+  "l11-rbac-abac": [
+    ["শুধু RBAC", "RBAC grant-এর উপরে ABAC শর্ত (department মিল, device অবস্থা) — attribute যা বলে role তা পারে না", "লম্বা একটি role নাম", "Client-side check"],
+    ["সব admin বঞ্চিত", "কোনো matching allow rule ছাড়া একটি request বঞ্চিত হয় (আর logged হয়) — authorization fail-closed হয়", "ব্যবহারকারীদের দুইবার জিজ্ঞেস করতে হবে", "Default role খালি"],
+    ["Office-এ একটি poster", "একটি স্বয়ংক্রিয় test যা সেই role হিসেবে নিষিদ্ধ কাজটি চেষ্টা করে আর প্রত্যাখ্যান দাবি করে — প্রতি বদলে আবার চালাও", "একটি মৌখিক চুক্তি", "Code-এ একটি comment"],
+  ],
+  "l11-privilege-escalation-defense": [
+    ["Read-only access", "একটি root shell grant — editor (আর pager) ভেতর থেকে command চালাতে পারে, তাই grant-এর আসল ক্ষমতা হলো 'root হয়ে যাও'", "নিরীহ", "একটি logging feature"],
+    ["একটি সুবিধা group", "Host-এ root-equivalent (container / mount করতে পারে) — একটি admin grant যা access review-তে আসতেই হবে", "Developer-দের জন্য দরকার", "বিশ্বস্ত হলে নিরীহ"],
+    ["Read-only command", "তোমার নিজের/তোমাকে রক্ষায় নিয়োজিত system-এর একটি audit, যার লক্ষ্য পথ সরানো — অনুমোদন আর প্রতিরক্ষামূলক উদ্দেশ্যই একে সংজ্ঞায়িত করে, tool তালিকা নয়", "রাতে করা", "পরে নথিভুক্ত"],
+  ],
+  "l11-session-recovery": [
+    ["Redundancy fashion", "Idle পরিত্যক্ত session শেষ করে; absolute সক্রিয়গুলোকেও সীমাবদ্ধ করে — চুরি হওয়া, সক্রিয়ভাবে ব্যবহৃত session-কেও বুড়ো হয়ে মরতে হবে", "Absolute শুধু admin-দের জন্য", "একটি backup"],
+    ["একটি survey email করো", "Account-এর সব বিদ্যমান session বাতিল করো আর account-এর channel-গুলোকে জানাও", "Session lifetime বাড়াও", "MFA নিষ্ক্রিয় করো"],
+    ["একটি possession factor", "আধুনিক নির্দেশনায় authenticator নয় — পুনব্যবহৃত উত্তরসহ গবেষণাযোগ্য জ্ঞান; recovery যাচাইকৃত channel আর token দিয়ে বানাতে হবে", "অস্বাভাবিক বানান হলে শক্ত", "NIST-এর দরকার"],
+  ],
+};
+
+export const PRACTICAL_OPTIONS_A4: Record<string, (string | undefined)[]> = {
+  "l7-tool-methodology": ["সঙ্গে সঙ্গে Critical report করো", "Distro package version/changelog যাচাই করো — Debian fix backport করে; install করা patch level যাচাই করো আর scope-এ নিরাপদে validate করো", "নিশ্চিত করতে একটি exploit চালাও", "Scan মুছে ফেলো"],
+  "l7-nmap": ["443 নিরাপদ + Apache Critical report করো", "অনুমোদিত ভেতরের পথ থেকে 443 test করো (filtered = অমাপা), আর কোনো severity দাবির আগে package changelog দিয়ে Apache-র patch অবস্থা যাচাই করো", "443 উত্তর না দেওয়া পর্যন্ত -T5 দিয়ে আবার scan করো", "Scan উপেক্ষা করো"],
+  "l7-wireshark": ["এখন capture filter 'dns' (আবার record করো)", "Save করা pcap-এর উপর display filter dns.flags.response==0, field dns.qry.name, তারপর গোনো", "443 port-এ TCP Stream follow করো", "pcap একটি text editor-এ খোলো"],
+  "l7-burp-zap": ["কিছুই নয়", "CA trust শুধু test profile-এ থাকতে হবে (দৈনন্দিন browsing এখন interceptযোগ্য), আর active scan-এর জন্য মালিকানা/লিখিত scope লাগে — public demo কোনোটিই ছিল না", "ZAP-এরও CA লাগে", "Burp profile ব্যবহার করতে পারে না"],
+  "l7-curl-openssl-git": ["নিশ্চিন্ত হও — এটি মোছা আর private", "আগে key rotate/revoke করো (উন্মুক্ত ধরে নাও), তারপর history scrub করো আর clone/access log audit করো", "Repository-র নাম বদলাও", "শুধু repository মোছো"],
+  "l7-detection-scanning-tools": ["সব → Trivy", "1 Sigma · 2 YARA · 3 Zeek · 4 Trivy · 5 Bandit", "1 YARA · 2 Sigma · 3 Suricata · 4 Semgrep · 5 Zeek", "সব → Suricata"],
+  "l8-access-control-sqli": ["ID শুধু UUID করো", "Login check রাখো এবং যোগ করো: invoice load করো, invoice.owner_id session user-এর সঙ্গে মেলাও, অমিলে 404 ফেরত দাও + একটি two-account regression test", "Button লুকাও", "CAPTCHA যোগ করো"],
+  "l8-crypto-failures": ["আগে verify=False ঠিক করো — এটি এক line", "আগে উন্মুক্ত API key rotate করো (এটি এখন ব্যবহারযোগ্য), তারপর password storage ধীর salted KDF-তে নাও, তারপর TLS যাচাই মেরামত করো — কাঠামোগত ঋণের আগে জীবন্ত উন্মুক্ততা", "শুধু password-ই গুরুত্বপূর্ণ", "Repo মোছো"],
+  "l8-injection-deep": ["Input-এ 'OR' শব্দ নিষিদ্ধ করো", "Query parameterize করো এবং একটি regression test যোগ করো: payload কোনো user ফেরত দেবে না, আসল user এখনো login করবে — CI-তে চালাও", "SQL error লুকাও", "Table-এর নাম বদলাও"],
+  "l8-insecure-design": ["সব bug", "a = secure design · b = design ত্রুটি (server-কে মূল্য নির্ধারণ করতে হবে) · c = সাধারণ bug", "b = bug, c = design ত্রুটি", "a = design ত্রুটি"],
+  "l8-misconfig-headers": ["একটি debugging সাহায্য", "Production রূপে A05: secret ফাঁস করা verbose error — বাইরে generic error, বিবরণ server log-এ, আর ফাঁস credential rotate করো", "শুধু একটি UX সমস্যা", "HSTS দিয়ে ঠিক হয়"],
+  "l8-xss": ["আরও blacklist", "(1) Output-এ escape (2) textContent দিয়ে render (3) unsafe-inline ফেলে দাও — encode করো, safe sink ব্যবহার করো, আর CSP-কে দ্বিতীয় দেয়াল হিসেবে রাখো", "শুধু CSP ঠিক করো", "Comment নিষিদ্ধ করো"],
+  "l8-csrf-ssrf": ["localhost শব্দ block করো", "Destination allowlist + scheme check + resolved-IP প্রত্যাখ্যান (private/loopback/link-local) + redirect পুনঃযাচাই + egress rule", "শুধু login শর্ত", "দ্রুত timeout"],
+  "l8-auth-failures": ["সব রাখো — ব্যবহারকারীদের স্পষ্টতা পছন্দ", "একটি generic error · স্থায়ী lockout-এর বদলে cool-off-সহ throttle · idle+absolute মেয়াদসহ session, reset-এ বাতিল", "Password সরাও", "আরও security প্রশ্ন যোগ করো"],
+  "l9-network-defense": ["Rule 1 খুব কঠোর", "Rule 2 rule 1-কে (আর deny-কে) server-এর জন্য অর্থহীন করে — যেকোনো জায়গা থেকে ANY কার্যত খোলা server; rule 2 সরাও বা scope করো", "Rule বর্ণানুক্রমিক হতে হবে", "DENY প্রথমে থাকবে"],
+  "l9-firewall-rules": ["a আগে — সবচেয়ে সহজ", "d (established) → c (নির্দিষ্ট allow) → b (policy-র আগে log) default DROP policy-সহ; (a) default-deny নকশায় কখনো থাকে না", "b আগে", "বর্ণানুক্রমিক"],
+  "l9-ids-suricata": ["কিছুই নয় — এটি testing-এ fire হয়েছিল", "sid shipped ruleset-এর সঙ্গে সংঘর্ষ করে (local range 1,000,000 থেকে শুরু) · কোনো sticky buffer (http.uri) নেই যা FP ডাকে · direction তুমি যে request প্রবাহ ধরতে চাও তা অনুসরণ করবে", "শুধু msg-এর শব্দ", "Suricata HTTP করতে পারে না"],
+  "l9-vpn-tls": ["CA ব্যর্থতা", "নামের অমিল: chain ঠিক আছে, ব্যবহৃত নাম SAN-এ নেই — সঠিক SAN তালিকা দিয়ে পুনরায় জারি করো", "TLS version", "Gateway reboot করো"],
+  "l9-wireless": ["PSK বদলে 'Office-2026!' করো", "WPA3 (SAE)-তে যাও, manager থেকে লম্বা এলোমেলো PSK + rotation calendar-সহ — অথবা প্রতি-ব্যবহারকারী পরিচয়ের জন্য Enterprise 802.1X/EAP-TLS — আর একটি আলাদা guest network", "SSID লুকাও", "MAC filtering যোগ করো"],
+  "l9-monitoring-zeek": ["conn.log-এ domain খোঁজো", "dns.log: query == domain filter করো, zeek-cut ts id.orig_h query — নাম dns.log-এ থাকে, দরকারে uid দিয়ে conn.log-এর সঙ্গে যুক্ত হয়", "শুধু ssl.log server_name", "Firewall-কে জিজ্ঞেস করো"],
+  "l10-windows-hardening": ["Windows পুনরায় install করো", "প্রাক্তন-কর্মী admin সরাও + logon auditing চালু করো + firewall profile চালু করো — protocol পরিষ্কারের আগে পরিচয় আর দৃশ্যমানতা, প্রতিটি পুনঃaudit দিয়ে যাচাইকৃত", "শুধু SMBv1", "একটি EDR কেনো"],
+  "l10-linux-hardening": ["সব মেনে নাও — app কাজ করে", "vim grant সরাও/বদলাও (shell escape = root) · key যাচাই হলে password auth নিষ্ক্রিয় করো · sudoers/passwd-তে auditd watch যোগ করো — প্রতিটি snapshot করে যাচাই করো", "শুধু watch যোগ করো", "SSH পুনরায় install করো"],
+  "l10-edr-sysmon": ["সব log করো, কিছুই বাদ দিও না, চিরদিন", "Command line-সহ high-value event (1/3/11/22), পরিচিত noise-এর জন্য সংকীর্ণ নামকৃত exclusion, আর একটি review ছন্দ — মনোযোগই দুর্লভ সম্পদ", "শুধু Event 1, সব System32 বাদ", "কোনো config নয় — default-ই একটি কৌশল"],
+  "l10-patch-scanning": ["বর্ণানুক্রমিক", "(c) আর (a) এখন — ঠিকযোগ্য আর আসল; (b) তারিখসহ গ্রহণ পায় + পরিকল্পনায় unused dependency সরানো", "সব ত্রৈমাসিক window-এর জন্য অপেক্ষা করতে পারে", "(b) আগে — এটি সবচেয়ে ভয়ংকর শোনায়"],
+  "l10-encryption-backup": ["বেশিরভাগ নিরাপদ", "তিনটি ভুয়া layer: তালার পাশে চাবি (escrow ব্যর্থ), mounted backup share machine-এর ভাগ্য/credential ভাগ করে (স্বাধীনতা ব্যর্থ), অপরীক্ষিত restore (প্রমাণ ব্যর্থ)", "বাড়ির ব্যবহারের জন্য নিখুঁত", "শুধু চাবির অবস্থান ভুল"],
+  "l10-endpoint-ir": ["20 মিনিটের সংগ্রহ শান্তভাবে শুরু করো", "ছড়ানো আর ক্ষতি থামাতে সঙ্গে সঙ্গে বিচ্ছিন্ন/disconnect করো — চলমান ধ্বংস ক্রম উল্টে দেয়; বিচ্যুতি নথিভুক্ত করো আর পরে সংগ্রহ করো", "আগে ব্যবহারকারীর সাক্ষাৎকার নাও", "পূর্ণ antivirus scan চালাও"],
+  "l11-auth-mfa": ["শক্ত নকশা", "তিনটি anti-pattern: KBA একটি factor নয় · rotation নাটক অবসরপ্রাপ্ত · paste block করা password manager ভাঙে — বদলে password + TOTP/passkey, breached-screening, প্রমাণে-বদল", "শুধু rotation ভুল", "তৃতীয় একটি প্রশ্ন যোগ করো"],
+  "l11-oauth-oidc": ["লম্বা একটি client secret যোগ করো (public client secret রাখতে পারে না)", "Authorization code + PKCE · exact redirect URI (app link) · platform secure storage-এ token · refresh rotation চালু", "Implicit রাখো; app লুকাও", "Token URL bar-এ সরাও"],
+  "l11-saml-sso": ["একটি company-র ভেতরে গ্রহণযোগ্য", "প্রত্যাখ্যান করো: audience নকশা অনুযায়ী প্রতি-SP; অন্য app-এর assertion গ্রহণ করা সেই app-এর compromise তোমারটায় আমদানি করে", "ব্যবহারকারী এখানে থাকলে গ্রহণ করো", "Log করে গ্রহণ করো"],
+  "l11-rbac-abac": ["Export অনুমতিসহ একটি 'manager' role", "RBAC grant (manager → export) + ABAC শর্ত (region মিল + managed device + incident প্রসঙ্গ) + export নিজে logged আর NEVER test লেখা", "প্রতিবার email অনুমোদন, system বদল নেই", "Manager-দের admin দাও"],
+  "l11-privilege-escalation-defense": ["রাখো — তুমি নিজেকে বিশ্বাস করো", "একে একটি root-equivalent grant হিসেবে লেখো: সরাও অথবা review তারিখসহ লিখিতভাবে মেনে নাও — সুবিধার membership-ই access review ধরার জন্য আছে", "Group-এর নাম বদলাও", "এটি grant নয়"],
+  "l11-session-recovery": ["Phone ভূতুড়ে", "Reset বিদ্যমান session purge করেনি — reset শেষ হওয়া মানেই সব session বাতিল আর ব্যবহারকারীকে জানানো", "Session নকশা অনুযায়ী চিরদিনের", "Token খুব লম্বা ছিল"],
+};

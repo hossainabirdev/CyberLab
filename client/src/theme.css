@@ -1,0 +1,515 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+@import "tailwindcss-safe-area";
+
+@theme {
+  --text-xs: 12px; --text-xs--line-height: 17px;
+  --text-sm: 14px; --text-sm--line-height: 21px;
+  --text-base: 16px; --text-base--line-height: 26px;
+  --text-lg: 18px; --text-lg--line-height: 28px;
+  --text-xl: 21px; --text-xl--line-height: 31px;
+  --text-2xl: 26px; --text-2xl--line-height: 35px;
+  --text-3xl: 33px; --text-3xl--line-height: 42px;
+  --font-sans: "Sora", system-ui, -apple-system, "Segoe UI", "Noto Sans Bengali", sans-serif;
+  --font-display: "Fraunces", Georgia, "Noto Serif Bengali", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ============ CYBERLAB IDENTITY — "Ink & Signal" ============
+   Named palette (exact tokens, used consistently everywhere):
+   Base: Ink Navy #0B1220, layered panel #101C35.
+   Learn = Signal Cyan #22D3EE · Labs = Lab Emerald #10B981 ·
+   Missions = Mission Amber #F59E0B · CTF = CTF Orange #F97316 ·
+   Projects/Research = Project Violet #8B5CF6 · Threat Intel = Threat Rose #F43F5E ·
+   Terminal = Terminal Lime #84CC16 · SOC = Console Sky #38BDF8.
+   Colour means state too: locked = muted grey, current = full accent,
+   completed = emerald check, next = accent outline. */
+:root, :root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #16213C;
+  --bg-grad:
+    radial-gradient(900px 480px at 85% -80px, rgba(45,212,248,.18), transparent 60%),
+    radial-gradient(700px 420px at -120px 30%, rgba(167,139,250,.13), transparent 60%),
+    radial-gradient(600px 500px at 60% 110%, rgba(20,217,154,.09), transparent 60%),
+    linear-gradient(180deg, #1E2C4E 0%, #16213C 420px), #16213C;
+  --surface: #1E2C4E;
+  --surface2: #273863;
+  --surface3: #32467A;
+  --text: #f4f7fd;
+  --dim: #B9C7DE;
+  --border: #41548A;
+  --accent: #2DD4F8;
+  --accent2: #3B82F6;
+  --c-learn: #2DD4F8; --c-lab: #14D99A; --c-mission: #FFB224; --c-ctf: #FF7A29;
+  --c-project: #A78BFA; --c-intel: #FB4D6D; --c-terminal: #A3E635; --c-soc: #4CC3FF;
+  --ok: #10B981; --warn: #F59E0B; --bad: #F43F5E;
+  --radius: 18px;
+  --shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 1px 2px rgba(0,0,0,.4), 0 14px 34px -18px rgba(0,0,0,.65);
+  --shadow-lg: 0 1px 0 rgba(255,255,255,.05) inset, 0 2px 4px rgba(0,0,0,.45), 0 26px 50px -20px rgba(0,0,0,.7);
+  --glow: 0 0 0 1px rgba(34,211,238,.18), 0 12px 32px -12px rgba(34,211,238,.25);
+  --space-surface: var(--surface); --space-surface-alt: var(--surface2);
+  --space-muted: var(--dim); --space-border: var(--border); --space-accent: var(--accent);
+  --paper-dots: radial-gradient(rgba(168,182,204,.13) 1px, transparent 1px);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #FFF8EC;
+  --bg-grad:
+    radial-gradient(900px 480px at 85% -80px, rgba(2,132,199,.13), transparent 60%),
+    radial-gradient(700px 420px at -120px 30%, rgba(124,58,237,.09), transparent 60%),
+    radial-gradient(600px 500px at 60% 110%, rgba(5,150,105,.08), transparent 60%),
+    linear-gradient(180deg, #FFFBF2 0%, #FFF8EC 420px), #FFF8EC;
+  --surface: #fffefb;
+  --surface2: #F6ECD2;
+  --surface3: #EDDCB4;
+  --text: #131B2C;
+  --dim: #45536B;
+  --border: #D8C69A;
+  --accent: #0284C7;
+  --accent2: #2563EB;
+  --c-learn: #0284C7; --c-lab: #059669; --c-mission: #B45309; --c-ctf: #EA580C;
+  --c-project: #7C3AED; --c-intel: #E11D48; --c-terminal: #4D7C0F; --c-soc: #0284C7;
+  --ok: #047857; --warn: #92400e; --bad: #be123c;
+  --shadow: 0 1px 0 rgba(255,255,255,.85) inset, 0 1px 2px rgba(90,70,20,.08), 0 14px 30px -16px rgba(90,70,20,.30);
+  --shadow-lg: 0 1px 0 rgba(255,255,255,.9) inset, 0 2px 4px rgba(90,70,20,.09), 0 26px 48px -18px rgba(90,70,20,.34);
+  --glow: 0 0 0 1px rgba(3,105,161,.16), 0 12px 30px -12px rgba(3,105,161,.22);
+  --paper-dots: radial-gradient(rgba(23,35,58,.10) 1px, transparent 1px);
+}
+
+html { background: var(--bg); }
+body { font-family: var(--font-sans); color: var(--text); background: var(--bg-grad); background-attachment: fixed; min-height: 100vh; letter-spacing: -0.004em; }
+code, pre, .mono { font-family: var(--font-mono); }
+h1, h2, h3 { letter-spacing: -0.015em; }
+.font-display, .cl-display { font-family: var(--font-display); letter-spacing: -0.01em; }
+
+/* Motion — gentle, human, never bouncy */
+@keyframes cl-fade-slide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cl-pop { 0% { opacity: 0; transform: scale(.96) translateY(4px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes cl-shimmer { from { background-position: -400px 0; } to { background-position: 400px 0; } }
+@keyframes cl-dash { to { stroke-dashoffset: -14; } }
+.cl-fade { animation: cl-fade-slide .24s cubic-bezier(.22,.8,.36,1) both; }
+.cl-pop { animation: cl-pop .22s cubic-bezier(.22,.8,.36,1) both; }
+/* Battery rule: NO continuous animation anywhere in the app — a pulsing
+   dot kept the compositor busy forever for zero information. The SOC
+   "live" dot is a static dot now; state changes, not motion, signal
+   liveness. (The loading skeleton's shimmer is the one exception: it
+   exists only while content is actually loading, then unmounts.) */
+.cl-live-dot { animation: none; }
+
+/* Cards — organic, not template boxes: soft top light, deep shadow, track-tinted hover */
+.cl-card { box-shadow: var(--shadow); transition: transform .2s cubic-bezier(.22,.8,.36,1), box-shadow .2s ease, border-color .2s ease; }
+.cl-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.cl-card-flat:hover { transform: none; }
+.cl-dossier { border-radius: 4px 22px 22px 22px !important; }
+.cl-dossier-tab { border-radius: 14px 14px 0 0; }
+.cl-console { border-radius: 10px !important; background: #0b1120 !important; color: #dbeafe; border-color: #24365e !important; }
+:root[data-theme="light"] .cl-console { background: #101a30 !important; color: #e2e8f0; }
+.cl-shelf { border-radius: 6px 18px 18px 6px !important; border-left-width: 6px !important; }
+
+button { transition: transform .13s ease, background-color .16s ease, border-color .16s ease, box-shadow .16s ease, opacity .16s ease, filter .16s ease; }
+button:active { transform: scale(.98); }
+button:hover { filter: brightness(1.05); }
+.cl-btn { box-shadow: 0 10px 22px -10px rgba(37,99,235,.6), 0 1px 0 rgba(255,255,255,.18) inset; border-radius: 999px !important; }
+.cl-btn:hover { filter: brightness(1.08); box-shadow: 0 14px 26px -10px rgba(37,99,235,.65), 0 1px 0 rgba(255,255,255,.2) inset; }
+.cl-btn-ghost { box-shadow: none; }
+.cl-progress-anim { transition: width .7s cubic-bezier(.22,.8,.36,1); }
+.cl-skeleton { background: linear-gradient(90deg, var(--surface2) 25%, var(--surface) 50%, var(--surface2) 75%); background-size: 800px 100%; animation: cl-shimmer 1.4s infinite linear; }
+.cl-locked { filter: saturate(.4); }
+.cl-wrap { white-space: normal; overflow-wrap: anywhere; }
+.cl-dots { background-image: var(--paper-dots); background-size: 18px 18px; }
+.cl-journey-line { background-image: linear-gradient(var(--border) 55%, transparent 0); background-size: 2px 14px; background-repeat: repeat-y; background-position: center; }
+.cl-step-dot { box-shadow: 0 0 0 4px var(--surface), 0 0 0 5.5px var(--border); }
+.cl-step-dot-done { box-shadow: 0 0 0 4px var(--surface), 0 0 0 5.5px var(--ok); }
+.cl-step-dot-now { box-shadow: var(--glow), 0 0 0 4px var(--surface); }
+::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+/* Light mode: re-tint hard-coded dark utility washes so text stays readable */
+:root[data-theme="light"] .bg-sky-950\/30, :root[data-theme="light"] .bg-sky-950\/20, :root[data-theme="light"] .bg-sky-950\/10 { background: #dcecf8; }
+:root[data-theme="light"] .bg-emerald-950\/30, :root[data-theme="light"] .bg-emerald-950\/40, :root[data-theme="light"] .bg-emerald-950\/20, :root[data-theme="light"] .bg-emerald-950\/10 { background: #d7f0e2; }
+:root[data-theme="light"] .bg-amber-950\/30, :root[data-theme="light"] .bg-amber-950\/40 { background: #fbeecd; }
+:root[data-theme="light"] .bg-red-950\/30, :root[data-theme="light"] .bg-red-950\/40 { background: #fbdee3; }
+:root[data-theme="light"] .text-sky-100, :root[data-theme="light"] .text-sky-200 { color: #0c4a6e; }
+:root[data-theme="light"] .text-emerald-200, :root[data-theme="light"] .text-emerald-300 { color: #065f46; }
+:root[data-theme="light"] .text-amber-100, :root[data-theme="light"] .text-amber-200, :root[data-theme="light"] .text-amber-300 { color: #7c4a03; }
+:root[data-theme="light"] .text-red-200, :root[data-theme="light"] .text-red-300 { color: #881337; }
+:root[data-theme="light"] .text-amber-200 { color: #7c4a03; }
+:root[data-theme="light"] .from-sky-950 { --tw-gradient-from: #dcecf8; }
+:root[data-theme="light"] .to-emerald-950 { --tw-gradient-to: #d7f0e2; }
+:root[data-theme="light"] .border-sky-900, :root[data-theme="light"] .border-sky-800 { border-color: #a9c8e4; }
+:root[data-theme="light"] .border-emerald-900, :root[data-theme="light"] .border-emerald-800, :root[data-theme="light"] .border-emerald-700 { border-color: #8fd3ae; }
+:root[data-theme="light"] .border-amber-800, :root[data-theme="light"] .border-amber-700 { border-color: #dfba6b; }
+:root[data-theme="light"] .border-red-900, :root[data-theme="light"] .border-red-800 { border-color: #eda7b3; }
+
+@layer base {
+  button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2.25rem; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ============ MOBILE FIT (phones ≤640px) ============
+   - Hero/lesson illustrations shrink so the actual next action is visible
+     without scrolling past a banner.
+   - Form controls render at 16px so phone browsers never auto-zoom on focus
+     (which breaks layout and disorients first-time users).
+   - Sticky mobile header clears the notch / status-bar safe area. */
+@media (max-width: 640px) {
+  .cl-illus { height: 92px !important; }
+  input:not([type="checkbox"], [type="radio"]), textarea, select { font-size: 16px !important; }
+  /* CURSOR-LINE FIX (15 Nov 2026): the code editors (CodePlayground /
+     UniversalPlayground) draw their visible text in a <pre> overlay UNDER a
+     transparent-text <textarea> — the caret belongs to the textarea, the
+     glyphs to the <pre>. The 16px rule above grows the textarea's font (and
+     with it, its line height: 16×1.55 = 24.8px) but never touched the <pre>
+     (12.5×1.55 = 19.4px), so on phones the two layers drifted a full line
+     apart within a few lines: the learner tapped one line and typing /
+     delete landed on the line ABOVE. Grow the overlay (and the line-number
+     gutter, which carries the same class) with the textarea so both layers
+     keep identical metrics at every width. */
+  .cl-editor-overlay { font-size: 16px !important; }
+  .cl-mobile-header { padding-top: calc(0.5rem + env(safe-area-inset-top, 0px)); }
+}
+
+/* CURSOR-LINE FIX, desktop half: an overlay editor's <textarea> shows a
+   vertical scrollbar once the code is taller than the box, and that
+   scrollbar eats ~15px of the textarea's text width — while the <pre>
+   overlay spans the full width. Lines then wrap at different points in the
+   two layers, and below the first differently-wrapped line the caret and
+   the visible code sit on different lines (same "delete hits the line
+   above" symptom on PC). Hiding the textarea's scrollbar gives both layers
+   the exact same text width, so they wrap identically. Scrolling still
+   works (wheel / touch / keyboard) and the overlay + gutter already follow
+   via the textarea's onScroll sync. */
+.cl-editor-scroll { scrollbar-width: none; }
+.cl-editor-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* ============ IMPORTANCE CALLOUTS + DARK-MODE HIERARCHY ============
+   One callout system, both themes, existing tokens only. Each type keeps
+   its identity in dark mode (where flat surfaces used to wash everything
+   to the same grey): coloured left border + token-tinted background +
+   full-bright heading. Light mode gets the same pale tints it already
+   used for these boxes, so light does not change character. */
+.cl-callout { border-left: 4px solid var(--accent); border-radius: 10px; padding: 10px 14px; }
+.cl-callout-key { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.cl-callout-warn { border-left-color: var(--c-intel); background: color-mix(in srgb, var(--c-intel) 10%, var(--surface)); }
+.cl-callout-tip { border-left-color: var(--c-lab); background: color-mix(in srgb, var(--c-lab) 10%, var(--surface)); }
+.cl-callout-note { border-left-color: var(--c-learn); background: color-mix(in srgb, var(--c-learn) 9%, var(--surface)); }
+.cl-callout-amber { border-left-color: var(--c-mission); background: color-mix(in srgb, var(--c-mission) 10%, var(--surface)); }
+/* Honours CSE ★ notice — third distinct callout accent (Project Violet),
+   dashed border so it reads as an official notice, not a note or a tip. */
+.cl-callout-star { border: 1.5px dashed color-mix(in srgb, var(--c-project) 65%, var(--border)); border-left: 4px solid var(--c-project); background: color-mix(in srgb, var(--c-project) 9%, var(--surface)); }
+:root[data-theme="dark"] .cl-callout-star { background: color-mix(in srgb, var(--c-project) 14%, var(--surface)); }
+.cl-callout .cl-callout-title { color: var(--text); font-weight: 700; }
+:root[data-theme="dark"] .cl-callout-key { background: color-mix(in srgb, var(--accent) 13%, var(--surface)); }
+:root[data-theme="dark"] .cl-callout-warn { background: color-mix(in srgb, var(--c-intel) 14%, var(--surface)); }
+:root[data-theme="dark"] .cl-callout-tip { background: color-mix(in srgb, var(--c-lab) 13%, var(--surface)); }
+:root[data-theme="dark"] .cl-callout-note { background: color-mix(in srgb, var(--c-learn) 12%, var(--surface)); }
+:root[data-theme="dark"] .cl-callout-amber { background: color-mix(in srgb, var(--c-mission) 13%, var(--surface)); }
+/* Dark-mode typography hierarchy: emphasised words inside body text render
+   full-bright (never the same muted grey as the sentence around them), and
+   key lines marked .cl-key-line stand at full text colour in both themes. */
+:root[data-theme="dark"] p strong, :root[data-theme="dark"] li strong, :root[data-theme="dark"] dd strong { color: var(--text); }
+.cl-key-line { color: var(--text) !important; }
+:root[data-theme="dark"] .cl-why-panel { background: color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+
+/* ============ MAIN PANE SCROLL (user-reported fix) ============
+   The main content pane is its own scroll container with a VISIBLE styled
+   scrollbar in both themes — never an overlay/auto-hide bar, never clipped.
+   Thumb uses the dim token (clearly visible against the surface2 track);
+   hover takes the section accent. Firefox gets scrollbar-color; WebKit /
+   Chromium / Edge get the ::-webkit-scrollbar rules. */
+:root, :root[data-theme="dark"] { --sb-thumb: #C7D5EE; --sb-track: #22325A; }
+:root[data-theme="light"] { --sb-thumb: #7A5E2E; --sb-track: #EFE0BC; }
+.cl-main-scroll { scrollbar-width: auto; scrollbar-color: var(--sb-thumb) var(--sb-track); overscroll-behavior: contain; scrollbar-gutter: stable; }
+.cl-main-scroll::-webkit-scrollbar { width: 16px; }
+.cl-main-scroll::-webkit-scrollbar-track { background: var(--sb-track); border-left: 1px solid var(--border); }
+.cl-main-scroll::-webkit-scrollbar-thumb { background: var(--sb-thumb); border: 2px solid var(--sb-track); border-radius: 8px; min-height: 48px; }
+.cl-main-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+.cl-main-scroll::-webkit-scrollbar-thumb:active { background: var(--accent); }
+/* ============ SIDEBAR PROFILE CARD — one card, two themes ============
+   Dark keeps the deep ink gradient with white text. Light gets a rich
+   paper-tinted gradient (cyan → violet washes over warm white) with dark
+   text, so the card belongs to the light palette instead of staying a
+   navy block on a paper page. The XP track gets a matching treatment:
+   translucent white on dark, translucent ink on light. */
+.cl-profile-card { background: linear-gradient(135deg, color-mix(in srgb, var(--c-learn) 30%, #0d1526), color-mix(in srgb, var(--c-project) 22%, #0d1526) 70%); color: #fff; }
+.cl-profile-track { background: rgba(255,255,255,.25); }
+:root[data-theme="light"] .cl-profile-card { background: linear-gradient(135deg, color-mix(in srgb, var(--c-learn) 24%, #fffdf6), color-mix(in srgb, var(--c-project) 20%, #fff6e8) 70%); color: var(--text); }
+:root[data-theme="light"] .cl-profile-track { background: rgba(19,27,44,.16); }
+
+/* The sidebar nav keeps its own, slimmer version of the same styling so the
+   two scroll areas read as one system and neither hijacks the other. */
+.cl-scroll-thin { scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+.cl-scroll-thin::-webkit-scrollbar { width: 8px; }
+.cl-scroll-thin::-webkit-scrollbar-track { background: transparent; }
+.cl-scroll-thin::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--dim) 65%, var(--surface)); border-radius: 8px; }
+
+/* ============ SIDEBAR LAYOUT CONTRACT (overlap fix, 13 Nov) ============
+   The desktop sidebar is a strict flex column whose height is the pane
+   height — never its content height:
+   - .cl-sidebar clips at the pane edge (overflow hidden, min-height 0),
+     so children can never spill past it or paint over each other.
+   - .cl-sidebar-nav is the ONLY flexible child: flex 1 1 auto with
+     min-height 0 and its own vertical scroll, so every nav item stays
+     reachable no matter how short the window is.
+   - .cl-sidebar-foot is an ordinary in-flow block after the nav
+     (flex none, separated by a top border on the sidebar's own
+     background) — it takes layout space, it never overlays the nav. */
+/* (display/flex-direction come from the element's Tailwind classes —
+   lg:flex + flex-col — so the sidebar still hides below lg.) */
+.cl-sidebar { height: 100%; min-height: 0; overflow: hidden; }
+.cl-sidebar-nav { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.cl-sidebar-foot { flex: none; border-top: 1px solid var(--border); background: var(--surface); padding: 10px 2px 12px; }
+
+/* ============ COMPACT CONTENT-SIZED BOXES + LIGHT POLISH (user order 12 Nov 21:32) ============
+   Layout grids may use the full desktop width, but an individual box takes
+   only the space its content needs: callouts (Tip / Note / Important /
+   honours ★) shrink to fit their text instead of stretching full-width.
+   Long text still wraps at the container edge (max-width: 100%). */
+.cl-callout { width: fit-content; max-width: 100%; }
+.cl-fit { width: fit-content; max-width: 100%; }
+
+/* Smooth scrolling for in-page navigation; the reduced-motion block below
+   and the global one above both turn it back off. */
+html { scroll-behavior: smooth; }
+
+/* Progress rings animate their arc with the same easing as progress bars —
+   transform/opacity-class motion only, no layout work. */
+.cl-ring-anim { transition: stroke-dashoffset .7s cubic-bezier(.22,.8,.36,1); }
+
+/* Task-check success: a single small pop when a check turns green
+   (state change, not decoration). Applied via .cl-check-pop. */
+@keyframes cl-check-pop { 0% { transform: scale(.85); opacity: .4; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+.cl-check-pop { animation: cl-check-pop .22s cubic-bezier(.22,.8,.36,1) both; }
+
+/* Touch devices: real 44px tap targets on interactive controls (prose
+   links excluded — they keep their line height). */
+@media (pointer: coarse) {
+  button, [role="button"], select, summary { min-height: 44px; }
+  input[type="checkbox"], input[type="radio"] { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* ================================================================
+   LESSON READING ROOM — whole-app lesson design (13 Nov, design only)
+   Light first: warm paper canvas, ink headings, soft tinted sections.
+   Dark: same hierarchy on deep ink — headings full-bright, body muted,
+   each section keeps its accent so nothing washes to one grey.
+   Every section is visually distinct: Objectives (cyan cards) ·
+   Relevance (amber key) · Concept (plain prose, lead paragraph) ·
+   Diagram (framed figure) · Terminology (definition cards) ·
+   Code (dark console) · Mistakes (rose rows) · Security (rose callout) ·
+   Practice (two bench cards) · Guided Lab (emerald steps) ·
+   Mission (amber) · Summary (emerald) · Assessment (blue board).
+   Callouts/why inner boxes stay content-sized (fit-content rule above);
+   section shells are layout, not callouts, so they may fill the column.
+   Motion: transform/opacity only, 150–260ms, reduced-motion safe.
+   ================================================================ */
+:root, :root[data-theme="dark"] {
+  --lp-bg: #1B2A4D;
+  --lp-bg2: #22335C;
+  --lp-soft: rgba(255,255,255,.045);
+  --lp-line: #41548A;
+  --lp-body: #CBD8EF;
+  --lp-lead: #EFF4FF;
+  --lp-code-head: #0B1220;
+}
+:root[data-theme="light"] {
+  --lp-bg: #FFFEF9;
+  --lp-bg2: #FFF9EE;
+  --lp-soft: rgba(120,90,20,.045);
+  --lp-line: #E7D9B8;
+  --lp-body: #33415C;
+  --lp-lead: #131B2C;
+  --lp-code-head: #101A30;
+}
+
+/* The lesson itself sits on one paper/ink canvas — the page behind it
+   stays the app background, the reading surface is calmer and brighter. */
+.cl-lesson {
+  background: linear-gradient(180deg, var(--lp-bg) 0%, var(--lp-bg2) 340px, var(--lp-bg) 100%);
+  border: 1px solid var(--lp-line);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  padding: 20px 18px 26px;
+}
+@media (min-width: 640px) { .cl-lesson { padding: 28px 30px 34px; } }
+@media (max-width: 380px) { .cl-lesson { padding: 16px 13px 22px; border-radius: 18px; } }
+
+/* Hero: level seal + display title + meta chips + honest prereq line */
+.cl-lesson-hero { padding-bottom: 16px; border-bottom: 1px solid var(--lp-line); }
+.cl-lesson-title {
+  font-family: var(--font-display);
+  font-size: 30px; line-height: 1.12; font-weight: 700; letter-spacing: -0.015em;
+  color: var(--text); text-wrap: balance;
+}
+@media (max-width: 640px) { .cl-lesson-title { font-size: 26px; } }
+.cl-lesson-lead { font-size: 14.5px; line-height: 1.7; color: var(--dim); }
+.cl-meta-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1px solid var(--lp-line); background: var(--lp-soft);
+  border-radius: 999px; padding: 4px 10px;
+  font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap;
+}
+.cl-meta-chip b { color: var(--accent); font-weight: 800; }
+
+/* Section shell — one rhythm for every lesson block */
+.cl-sec { margin-top: 26px; --sec: var(--accent); }
+.cl-sec-head {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.cl-sec-num {
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 30px; height: 30px; border-radius: 10px;
+  background: color-mix(in srgb, var(--sec) 16%, var(--surface));
+  border: 1.5px solid color-mix(in srgb, var(--sec) 55%, var(--border));
+  color: var(--sec); font-size: 13px; font-weight: 800; font-family: var(--font-mono);
+}
+.cl-sec-title {
+  font-family: var(--font-display);
+  font-size: 19px; line-height: 1.25; font-weight: 700; color: var(--text); letter-spacing: -0.01em;
+}
+.cl-sec-kicker {
+  display: block; font-family: var(--font-sans); font-size: 10.5px; font-weight: 800;
+  letter-spacing: .13em; text-transform: uppercase; color: var(--sec); margin-bottom: 1px;
+}
+.cl-sec-rule { flex: 1; height: 1px; background: linear-gradient(90deg, color-mix(in srgb, var(--sec) 45%, var(--lp-line)), transparent); min-width: 24px; }
+.cl-sec--objectives { --sec: var(--c-learn); }
+.cl-sec--concept { --sec: var(--accent); }
+.cl-sec--diagram { --sec: var(--c-project); }
+.cl-sec--terms { --sec: var(--c-soc); }
+.cl-sec--code { --sec: var(--c-terminal); }
+.cl-sec--example { --sec: var(--c-mission); }
+.cl-sec--mistakes { --sec: var(--c-intel); }
+.cl-sec--security { --sec: var(--c-intel); }
+.cl-sec--practice { --sec: var(--c-lab); }
+.cl-sec--lab { --sec: var(--c-lab); }
+.cl-sec--mission { --sec: var(--c-mission); }
+.cl-sec--assess { --sec: var(--accent2); }
+
+/* Readable body copy inside lessons (overrides the 14px default stack) */
+.cl-lesson-body { font-size: 15px; line-height: 1.78; color: var(--lp-body); }
+.cl-lesson-body strong, .cl-lesson-body b { color: var(--text); }
+.cl-concept-lead { font-size: 16.5px; line-height: 1.75; color: var(--lp-lead); font-weight: 500; }
+@media (max-width: 640px) { .cl-concept-lead { font-size: 15.5px; } .cl-lesson-body { font-size: 14.5px; line-height: 1.74; } }
+
+/* Objectives — scannable cards, not a bare bullet list */
+.cl-obj-grid { display: grid; gap: 8px; }
+@media (min-width: 720px) { .cl-obj-grid { grid-template-columns: 1fr 1fr; } }
+.cl-obj-item {
+  display: flex; gap: 9px; align-items: flex-start;
+  background: var(--lp-soft); border: 1px solid var(--lp-line);
+  border-left: 3px solid var(--c-learn); border-radius: 12px; padding: 10px 12px;
+  font-size: 14.5px; line-height: 1.65; color: var(--lp-body);
+}
+.cl-obj-item::before {
+  content: "✓"; flex-shrink: 0; margin-top: 1px;
+  width: 19px; height: 19px; border-radius: 999px; text-align: center; line-height: 19px;
+  background: color-mix(in srgb, var(--c-learn) 18%, var(--surface)); color: var(--c-learn);
+  font-size: 11px; font-weight: 900;
+}
+
+/* Terminology — definition cards: term loud, definition calm */
+.cl-term-grid { display: grid; gap: 8px; }
+@media (min-width: 720px) { .cl-term-grid { grid-template-columns: 1fr 1fr; } }
+.cl-term-item {
+  background: var(--surface); border: 1px solid var(--lp-line); border-radius: 12px; padding: 10px 13px 11px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+}
+.cl-term-item dt { font-size: 14px; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.cl-term-item dt::before { content: ""; width: 7px; height: 7px; border-radius: 999px; background: var(--c-soc); flex-shrink: 0; }
+.cl-term-item dd { margin-top: 3px; font-size: 14px; line-height: 1.68; color: var(--lp-body); }
+
+/* Mistakes — rose rows with a clear ✕ marker */
+.cl-mistake-list { display: grid; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.cl-mistake-item {
+  display: flex; gap: 9px; align-items: flex-start;
+  border: 1px solid color-mix(in srgb, var(--c-intel) 32%, var(--lp-line));
+  background: color-mix(in srgb, var(--c-intel) 6%, var(--surface));
+  border-radius: 12px; padding: 10px 12px;
+  font-size: 14.5px; line-height: 1.68; color: var(--lp-body);
+}
+:root[data-theme="dark"] .cl-mistake-item { background: color-mix(in srgb, var(--c-intel) 10%, var(--surface)); }
+.cl-mistake-item::before {
+  content: "✕"; flex-shrink: 0; margin-top: 1px;
+  width: 19px; height: 19px; border-radius: 999px; text-align: center; line-height: 19px;
+  background: color-mix(in srgb, var(--c-intel) 16%, var(--surface)); color: var(--c-intel);
+  font-size: 11px; font-weight: 900;
+}
+
+/* Practice benches (PC / Android) — two titled cards */
+.cl-bench {
+  border: 1px solid var(--lp-line); border-top: 3px solid var(--c-lab);
+  background: var(--surface); border-radius: 14px; padding: 13px 14px;
+}
+.cl-bench ol { font-size: 14.5px; line-height: 1.7; color: var(--lp-body); }
+.cl-bench li + li { margin-top: 5px; }
+.cl-bench li::marker { color: var(--c-lab); font-weight: 800; }
+
+/* PC practice — the ONE own-PC task per lesson: same bench shell, stronger frame */
+.cl-pc-practice {
+  border: 1.5px solid color-mix(in srgb, var(--c-lab) 45%, var(--lp-line));
+  background: color-mix(in srgb, var(--c-lab) 5%, var(--surface));
+  box-shadow: var(--shadow);
+}
+
+/* Task board — the 5-task map reads as a journey, not a form */
+.cl-task-board {
+  border: 1.5px solid color-mix(in srgb, var(--accent) 42%, var(--lp-line));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 7%, var(--surface)), var(--surface) 55%);
+  border-radius: 18px; padding: 16px;
+}
+@media (min-width: 640px) { .cl-task-board { padding: 20px; } }
+.cl-task-row { position: relative; }
+.cl-task-row + .cl-task-row { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--lp-line); }
+
+/* Diagram figure frame */
+.cl-diagram {
+  border: 1px solid var(--lp-line); border-top: 3px solid var(--c-project);
+  background: var(--surface); border-radius: 16px; padding: 14px;
+  box-shadow: var(--shadow);
+}
+@media (min-width: 640px) { .cl-diagram { padding: 18px; } }
+
+/* Why panel — header band + numbered timeline sections */
+.cl-why-panel { background: var(--surface); box-shadow: var(--shadow); overflow: hidden; padding: 0 !important; }
+.cl-why-panel > h4 {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface2));
+  border-bottom: 1px solid var(--lp-line); padding: 9px 14px; margin: 0;
+}
+.cl-why-body { padding: 10px 14px 12px; }
+@media (max-width: 640px) { .cl-why-body { padding: 10px 12px 12px; } }
+
+/* Code / output panes — strong contrast in BOTH themes, mono 13px/1.65 */
+.cl-code-pane { background: #0B1220; border: 1px solid #24365E; }
+.cl-code-pane pre, .cl-code-text { font-size: 13px !important; line-height: 1.68 !important; letter-spacing: 0; }
+:root[data-theme="light"] .cl-code-pane { border-color: #2A3F66; box-shadow: 0 10px 24px -14px rgba(16,26,48,.45); }
+
+/* Quiz & practical — calmer question cards, bigger option targets */
+.cl-q-card {
+  background: var(--surface) !important; border: 1.5px solid var(--lp-line) !important;
+  border-radius: 14px !important; padding: 14px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+}
+.cl-q-opt {
+  border-radius: 10px !important; padding: 10px 12px !important; min-height: 44px !important;
+  transition: border-color .16s ease, background-color .16s ease;
+}
+.cl-q-opt:hover { border-color: var(--accent) !important; }
+.cl-assess-board {
+  border: 1.5px solid color-mix(in srgb, var(--accent2) 45%, var(--lp-line)) !important;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--accent2) 6%, var(--surface)), var(--surface) 50%) !important;
+  border-radius: 18px !important;
+}
+
+/* Guided-lab steps inside a lesson */
+.cl-lab-step {
+  border: 1px solid var(--lp-line); border-left: 4px solid var(--c-lab);
+  background: var(--surface); border-radius: 14px; padding: 13px 14px;
+}
+
+/* Section entrance — one gentle fade per lesson open, nothing continuous */
+.cl-lesson .cl-sec { animation: cl-fade-slide .26s cubic-bezier(.22,.8,.36,1) both; }
+@media (prefers-reduced-motion: reduce) { .cl-lesson .cl-sec { animation: none !important; } }

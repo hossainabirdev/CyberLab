@@ -1,0 +1,22 @@
+# CyberLab Worker — Wrangler config (only needed if you deploy with the CLI;
+# the Dashboard paste-deploy in SETUP.md does not need this file).
+name = "cyberlab"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# The database_id below is this project's own D1 database. If you create a
+# fresh D1 database in another Cloudflare account, replace it with YOUR
+# database id (Cloudflare Dashboard → Workers & Pages → D1 → your database).
+# The binding name MUST stay "DB" — worker.js reads env.DB.
+[[d1_databases]]
+binding = "DB"
+database_name = "cyberlab-db"
+database_id = "f54bc9f2-1d57-44a5-844f-0ca653a02000"
+
+# Secrets are NEVER stored in this file. Set the password-reset mail key as
+# a Worker secret instead (see SETUP.md, Step 5):
+#   wrangler secret put BREVO_API_KEY
+# Optional plain variables:
+# [vars]
+# BREVO_FROM = "your verified Brevo sender email"
+# SESSION_PEPPER = "any-long-random-string-you-choose"
