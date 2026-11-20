@@ -17,6 +17,7 @@ import { completeItem, saveDiagnostic, togglePentest, type LocalState } from "./
 import { ASSESSMENT_REQUIRES, SOC_REQUIRES, PENTEST_REQUIRES, isUnlocked } from "./gating";
 import { JourneyStrip, LockedNotice, UnlockFilterBar, useUnlockFilter } from "./guided";
 import { SECTION_ORDER } from "./lang";
+import { sfxError, sfxSuccess } from "./sound";
 import { ASSESSMENT_BN, SOC_BN, DIAGNOSTIC_BN } from "./bn-practice3";
 import { api } from "./api";
 
@@ -48,7 +49,7 @@ export function AssessmentView({ goLesson }: { goLesson: (id: string) => void })
   const weak = s.diagnostic?.perTopic.filter((t) => t.total > 0 && t.score / t.total < 0.7) ?? [];
 
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <JourneyStrip nextLabel="an assessment opens after its foundation lessons" />
       <SectionTitle eyebrow="Level proof · Step 9" orderEn={SECTION_ORDER.assessment.en} orderBn={SECTION_ORDER.assessment.bn} bn="দক্ষতা মূল্যায়ন" bnSub="প্রতিটি মূল্যায়ন তার ভিত্তি-পাঠ শেষ হলেই খোলে। Quiz ও practical — দুটোতেই pass করলেই দক্ষতার প্রমাণ মিলবে।" sub="Each skill assessment opens after its foundation lessons. The diagnostic sets pace only — it never skips a prerequisite. Skill evidence is awarded only when BOTH the quiz and the practical pass.">
         Skill Assessment
@@ -131,7 +132,7 @@ export function KnowledgeBaseView({ goLesson }: { goLesson: (id: string) => void
   const glossaryHits = GLOSSARY.filter((g) => (g.term + g.def).toLowerCase().includes(glossaryQ.toLowerCase()));
   const cveLesson = ALL_LESSONS.find((l) => l.id === "l12-reading-cve");
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <SectionTitle eyebrow="Library · always open" bn="নলেজ বেস" bnSub="সবসময় খোলা reference — framework-এর version, Glossary-তে প্রতিটি শব্দের সহজ বাংলা ব্যাখ্যা, আর Vulnerability Research Academy। এটা লাইব্রেরি: যেকোনো সময় এসে খুঁজে পড়া যায়, ধারার ধাপ নয়।" sub="Always-open reference library — look anything up at any time; it is not a step in the workflow. Versions below were verified against official sources on 2026-11-12. Anything not verifiable is labelled as such — never guessed.">
         Knowledge Base
       </SectionTitle>
@@ -283,7 +284,7 @@ export function IntelView() {
   useEffect(() => { void load(false); }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <SectionTitle bn="থ্রেট ইন্টেলিজেন্স সেন্টার" bnSub="সবসময় খোলা reference — CISA KEV-এর live তালিকা ও EPSS score। পুরনো data কখনো live বলে দেখানো হয় না।" sub="Always-open reference. Official feeds first (CISA KEV live + FIRST EPSS). Publication date is never presented as first-exploitation date, and CVSS is never treated as proof of exploitation.">
         Threat Intelligence Center
       </SectionTitle>
@@ -405,7 +406,7 @@ export function SocView({ goLesson }: { goLesson: (id: string) => void }) {
   const [results, setResults] = useState<Record<string, boolean>>({});
 
   return (
-    <div className="space-y-4">
+    <div className="cl-stagger space-y-4">
       <JourneyStrip nextLabel="a SOC event opens after the lesson that teaches its pattern" />
       <SectionTitle eyebrow="Operations console · Step 10" orderEn={SECTION_ORDER.soc.en} orderBn={SECTION_ORDER.soc.bn} bn="SOC প্রশিক্ষণ" bnSub="প্রতিটি ঘটনা তার পাঠের পরে খোলে — আগে log পড়া শেখো, তারপর আসল triage-এর মতো সিদ্ধান্ত নাও। সব ঘটনাই simulated। এটি level শেষের প্রয়োগমূলক অনুশীলন — Skill Assessment-এর পরেই এর আসল জায়গা।" sub="Each event opens after the lesson that teaches its pattern. Every event is SIMULATED with synthetic data — triage it like the real thing: classify, judge severity, choose the professional actions. This is level-end applied practice, after the level's Skill Assessment.">
         SOC Analyst Training
@@ -457,8 +458,8 @@ export function SocView({ goLesson }: { goLesson: (id: string) => void }) {
                   <button type="button" disabled={ans.some((a) => a === null)} className="min-h-[44px] rounded bg-[color:var(--accent2)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
                     onClick={() => {
                       const allRight = ev.questions.every((q, qi) => ans[qi] === q.answer);
-                      if (allRight) { setResults((r) => ({ ...r, [ev.id]: true })); completeItem("soc", ev.id, ev.xp, 100, `SOC triage: ${ev.title}`); }
-                      else setResults((r) => ({ ...r, [ev.id]: false }));
+                      if (allRight) { sfxSuccess(); setResults((r) => ({ ...r, [ev.id]: true })); completeItem("soc", ev.id, ev.xp, 100, `SOC triage: ${ev.title}`); }
+                      else { sfxError(); setResults((r) => ({ ...r, [ev.id]: false })); }
                     }}>Submit triage</button>
                 )}
                 {results[ev.id] === false ? <p role="alert" className="text-sm text-red-300">Not yet — re-read the event data and reconsider classification/severity. Retry freely; XP only on a fully correct triage.</p> : null}
@@ -478,7 +479,7 @@ export function PentestView({ goLesson }: { goLesson: (id: string) => void }) {
   const pentestUnlocked = isUnlocked(s, PENTEST_REQUIRES) || s.pentestDone.length > 0;
   const tpl = TEMPLATES.find((t) => t.id === "tpl-pentest-report");
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <JourneyStrip nextLabel="the workspace opens after the Security Tools methodology lesson" />
       <SectionTitle eyebrow="Applied workspace · Step 10" orderEn={SECTION_ORDER.pentest.en} orderBn={SECTION_ORDER.pentest.bn} bn="পেনটেস্ট ওয়ার্কস্পেস" bnSub="টুল ব্যবহারের পদ্ধতির পাঠ শেষ হলেই এই workspace খোলে — আগে পদ্ধতি, তারপর প্রয়োগ। প্রতিটি ধাপে অনুমোদিত target লেখা আছে। এটি level শেষের প্রয়োগমূলক জায়গা, পাঠের বদলি নয়।" sub="The workspace opens after the Security Tools methodology lesson — method first, then application. Every step names its authorized target; nothing here configures a tool against arbitrary public targets. Open after the Level 7 Skill Assessment in the serial workflow.">
         Penetration Testing Workspace
@@ -526,7 +527,7 @@ export function PentestView({ goLesson }: { goLesson: (id: string) => void }) {
 export function CareersView() {
   const [open, setOpen] = useState<string | null>(null);
   return (
-    <div className="space-y-4">
+    <div className="cl-stagger space-y-4">
       <SectionTitle bn="ক্যারিয়ার সেন্টার" bnSub="সবসময় খোলা — প্রতিটি পেশার জন্য কোন পাঠ, কোন project আর কী প্রমাণ লাগবে, তার সৎ ধারণা।" sub="Always open. Realistic expectations throughout: no role, salary, certification, or income is guaranteed by completing CyberLab. What the platform gives you is evidence — passed assessments, projects, and reports.">
         Career Center
       </SectionTitle>
@@ -582,7 +583,7 @@ export function AnalyticsView({ goLesson }: { goLesson: (id: string) => void }) 
   const finals = s.progress.filter((p) => p.kind === "final");
 
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <SectionTitle bn="অগ্রগতি ও বিশ্লেষণ" bnSub="কোন বিষয়ে দুর্বল, ঠিক কোন পাঠ আবার পড়তে হবে — সব এখানে পরিষ্কার দেখা যাবে।" sub="Accuracy is broken down per lesson, per checkpoint, and per skill. Skill steps are earned through passed assessments — never through time spent or clicks.">
         Progress &amp; Analytics
       </SectionTitle>
@@ -639,7 +640,7 @@ export function AnalyticsView({ goLesson }: { goLesson: (id: string) => void }) 
 export function AccountSecurityView() {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <div className="space-y-4">
+    <div className="cl-stagger space-y-4">
       <SectionTitle bn="অ্যাকাউন্ট সুরক্ষা" bnSub="সবসময় খোলা — নিজের Facebook, Instagram, Google ও bank account সুরক্ষিত রাখার ধাপে ধাপে নির্দেশনা। শুধুই প্রতিরক্ষা।" sub="Always open — Level 11 track, defensive only. Secure your own accounts, understand the attacks conceptually on CyberLab's lab apps, and learn disclosure the professional way.">
         Account Security
       </SectionTitle>

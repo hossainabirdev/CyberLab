@@ -1,4 +1,4 @@
-![CyberLab](assets/banner.png)
+![CyberLab](assets/banner.gif)
 
 # CyberLab
 
@@ -71,7 +71,7 @@ cyberlab/
 ├── .env.example            ← env variable names with empty placeholders
 │                             (the real .env is never committed — see SETUP.md)
 ├── assets/
-│   └── banner.png          ← README hero banner
+│   └── banner.gif          ← README hero banner (animated)
 ├── package.json            ← scripts: typecheck / build / build:pages
 ├── client/
 │   ├── index.html          ← app entry page

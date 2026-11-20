@@ -3,6 +3,7 @@ import { recordAttempt, getState, saveProfileLocal, subscribe, type LocalState }
 import type { QuizQ } from "./catalog";
 import type { Practical } from "./catalog3";
 import { QUIZ_OPTIONS_BN, PRACTICAL_OPTIONS_BN } from "./bn-options";
+import { sfxClick, sfxError, sfxSuccess } from "./sound";
 import { tx, sectionOrderText } from "./i18n";
 import { LANG_LABELS, LANG_ORDER, LANG_SHORT, SECTION_ORDER, type LangMode } from "./lang";
 
@@ -87,7 +88,7 @@ function applyTheme(t: "dark" | "light") {
 /** Light / dark theme toggle — default dark; choice persists on this device. */
 export function ThemeToggle() {
   const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, () => "dark" as const);
-  const apply = (t: "dark" | "light") => applyTheme(t);
+  const apply = (t: "dark" | "light") => { sfxClick(); applyTheme(t); };
   return (
     <div className="flex items-center gap-1" role="group" aria-label="Theme">
       <button type="button" aria-pressed={theme === "dark"} onClick={() => apply("dark")} className={`min-h-[36px] rounded-lg px-2.5 py-1 text-xs font-semibold ${theme === "dark" ? "bg-[color:var(--accent2)] text-white" : "border border-[color:var(--border)] text-[color:var(--dim)]"}`}>Dark</button>
@@ -124,6 +125,7 @@ export function LangMenu({ compact = false, dropUp = false, alignEnd = false }: 
   }, [open ]);
 
   const pick = (m: LangMode) => {
+    sfxClick();
     saveProfileLocal({ lang: m });
     setOpen(false);
   };
@@ -220,7 +222,8 @@ export function Quiz({
     setResult({ score, total: questions.length, wrong });
     recordAttempt(id, score, questions.length, title);
     const pct = Math.round((score / questions.length) * 100);
-    if (pct >= PASS && onPass) onPass();
+    if (pct >= PASS) { sfxSuccess(); if (onPass) onPass(); }
+    else sfxError();
   };
   const retry = () => { setAnswers(questions.map(() => null)); setResult(null); };
   const pct = result ? Math.round((result.score / result.total) * 100) : 0;
@@ -305,6 +308,7 @@ export function PracticalView({
     if (pick === null) return;
     const ok = pick === task.answer;
     setState(ok ? "right" : "wrong");
+    if (ok) sfxSuccess(); else sfxError();
     recordAttempt(id + "-practical", ok ? 1 : 0, 1, heading);
     if (ok && onPass) onPass();
   };

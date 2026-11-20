@@ -7,15 +7,19 @@ const dtx = (en: string, bn: string) => txI(getState().profile.lang, en, bn);
 
 /* ===== CyberLab mark — hand-drawn style: shield outline broken by a circuit
    trace that ends in a terminal prompt ">_". Drawn once, used everywhere. ===== */
-export function CyberLabLogo({ size = 38 }: { size?: number }) {
+export function CyberLabLogo({ size = 38, animated = false }: { size?: number; animated?: boolean }) {
+  // `animated` (login hero only): the shield and circuit traces draw
+  // themselves in once via the .cl-draw classes in theme.css — pathLength
+  // normalises every path to 100 so one dash animation fits them all.
+  const d = (cls: string) => (animated ? { pathLength: 100, className: cls } : {});
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" role="img" aria-label="CyberLab logo" className="shrink-0">
-      <path d="M24 3.5 40 9.5v13c0 10.5-6.8 17.6-16 21.5C14.8 40.1 8 33 8 22.5v-13L24 3.5Z" stroke="var(--c-learn)" strokeWidth="2.6" strokeLinejoin="round" />
-      <path d="M13 15h8.5a3 3 0 0 1 3 3v3" stroke="var(--c-lab)" strokeWidth="2.2" strokeLinecap="round" />
-      <circle cx="13" cy="15" r="2.1" fill="var(--c-lab)" />
-      <path d="M35 15h-5.5a3 3 0 0 0-3 3v7" stroke="var(--c-mission)" strokeWidth="2.2" strokeLinecap="round" />
-      <circle cx="35" cy="15" r="2.1" fill="var(--c-mission)" />
-      <path d="M17.5 24.5 22 28l-4.5 3.5M24.5 33.5h7" stroke="var(--text)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" role="img" aria-label="CyberLab logo" className={`shrink-0 ${animated ? "cl-logo-svg" : ""}`}>
+      <path d="M24 3.5 40 9.5v13c0 10.5-6.8 17.6-16 21.5C14.8 40.1 8 33 8 22.5v-13L24 3.5Z" stroke="var(--c-learn)" strokeWidth="2.6" strokeLinejoin="round" {...d("cl-draw")} />
+      <path d="M13 15h8.5a3 3 0 0 1 3 3v3" stroke="var(--c-lab)" strokeWidth="2.2" strokeLinecap="round" {...d("cl-draw cl-draw-2")} />
+      <circle cx="13" cy="15" r="2.1" fill="var(--c-lab)" className={animated ? "cl-dot" : undefined} />
+      <path d="M35 15h-5.5a3 3 0 0 0-3 3v7" stroke="var(--c-mission)" strokeWidth="2.2" strokeLinecap="round" {...d("cl-draw cl-draw-3")} />
+      <circle cx="35" cy="15" r="2.1" fill="var(--c-mission)" className={animated ? "cl-dot cl-dot-2" : undefined} />
+      <path d="M17.5 24.5 22 28l-4.5 3.5M24.5 33.5h7" stroke="var(--text)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" {...d("cl-draw cl-draw-4")} />
     </svg>
   );
 }
@@ -44,6 +48,7 @@ export function SectionIcon({ kind, size = 20, color = "currentColor" }: { kind:
     careers: <><path d="M12 3.5 21 8l-9 4.5L3 8l9-4.5Z" {...p} /><path d="M6.5 10.5V16c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-5.5M21 8v6" {...p} /></>,
     analytics: <><path d="M4 20V10M9.5 20V4M15 20v-8M20.5 20V7" {...p} strokeWidth={2.6} /></>,
     settings: <><circle cx="12" cy="12" r="3.2" {...p} /><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1" {...p} /></>,
+    privacy: <><path d="M12 3 19 5.4v5.1c0 4.6-2.9 7.9-7 9.7-4.1-1.8-7-5.1-7-9.7V5.4L12 3Z" {...p} /><path d="M9.2 11.8 11.2 13.8 14.9 9.9" {...p} /></>,
     lock: <><rect x="5" y="10.5" width="14" height="9.5" rx="2" {...p} /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" {...p} /></>,
     unlock: <><rect x="5" y="10.5" width="14" height="9.5" rx="2" {...p} /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 6.9-.8" {...p} /></>,
     check: <path d="M4.5 12.5 9.5 17.5 19.5 6.5" {...p} strokeWidth={2.4} />,

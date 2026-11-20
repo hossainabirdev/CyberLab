@@ -1,7 +1,9 @@
 import { useRef, useState, useSyncExternalStore } from "react";
 import { tx as txI } from "./i18n";
 import { Badge, Card, LangMenu, SectionTitle, ThemeToggle, downloadText, useStore } from "./ui";
+import { getSoundEnabled, setSoundEnabled, sfxClick, sfxSuccess, subscribeSound } from "./sound";
 import { PwaInstallCard } from "./PwaInstall";
+import { CopyrightLine } from "./Privacy";
 import { JourneyStrip } from "./guided";
 import { TEMPLATES } from "./catalog3";
 import {
@@ -50,7 +52,7 @@ export function ResearchView() {
   const inputCls = "min-h-[44px] w-full rounded border border-[color:var(--border)] bg-[color:var(--surface2)] px-3 py-2 text-sm text-[color:var(--text)]";
 
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <JourneyStrip nextLabel="your notes are always open — write as you learn" />
       <SectionTitle bn="রিসার্চ ওয়ার্কস্পেস" bnSub="সবসময় খোলা — তোমার নিজের নোট, finding আর timeline এখানে থাকে, CWE ও ATT&CK অনুযায়ী সাজানো।" sub="Always open — it holds your own work. Research questions, lab notes, command output, snippets, findings, and timelines — mapped to CWE and ATT&CK, tracked to remediation, exportable as Markdown. All text is rendered as plain text, never as HTML.">
         Research Workspace
@@ -126,11 +128,12 @@ export function ResearchView() {
    Deliberately small. The app is account-first: sign-in lives on the auth
    screen (before the Dashboard), the server address is built in, and deploy
    documentation lives ONLY in the ZIP READMEs — never in this UI. Settings
-   holds exactly: theme, profile, language, sync status, password, logout,
-   and data backup (export/import/reset). */
+   holds exactly: theme, sound, profile, language, sync status, password,
+   logout, and data backup (export/import/reset). */
 
-export function SettingsView() {
+export function SettingsView({ goPrivacy }: { goPrivacy?: () => void } = {}) {
   const s = useStore();
+  const soundOn = useSyncExternalStore(subscribeSound, getSoundEnabled, getSoundEnabled);
 
   const session = useSyncExternalStore(subscribe, getCfSessionSnapshot, getCfSessionSnapshot);
   const sync = useSyncExternalStore(subscribe, getSyncSnapshot, getSyncSnapshot);
@@ -155,7 +158,7 @@ export function SettingsView() {
           : { text: "", cls: "" };
 
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <SectionTitle bn="সেটিংস" bnSub="Profile, ভাষা, theme, account আর data backup — শুধু এগুলোই।" sub="Profile, language, theme, your account, and a data backup. Nothing else lives here.">
         Settings
       </SectionTitle>
@@ -170,7 +173,7 @@ export function SettingsView() {
         </p>
         {syncLine.text ? <p role="status" className={`text-sm font-medium ${syncLine.cls}`}>{syncLine.text}</p> : null}
         <p className="text-sm text-[color:var(--dim)]">
-          {txI(s.profile.lang, "Every lesson, quiz, lab, mission, CTF and note saves under your account — sign in with the same account on any device and the same progress is there.", "প্রতিটা lesson, quiz, lab, mission, CTF আর note তোমার account-এর নামেই save হয় — অন্য যেকোনো device-এ একই account-এ sign in করলেই একই progress দেখবে।")}
+          {txI(s.profile.lang, "All progress saves under your account — same account, any device, same progress.", "সব progress তোমার account-এ save হয় — একই account, যেকোনো device, একই progress।")}
         </p>
       </Card>
 
@@ -178,8 +181,27 @@ export function SettingsView() {
 
       <Card className="space-y-2">
         <h3 className="font-semibold text-[color:var(--text)]">Appearance — theme</h3>
-        <p className="text-sm text-[color:var(--dim)]">Dark is the default training theme. Light mode re-skins the whole app (lessons, labs, quizzes) for bright rooms — code and terminal panes stay dark, like real editors. Your choice is saved on this device and also lives in the header.</p>
+        <p className="text-sm text-[color:var(--dim)]">Dark is the default. Light mode suits bright rooms; code and terminal panes stay dark either way.</p>
         <ThemeToggle />
+      </Card>
+
+      <Card className="space-y-2">
+        <h3 className="font-semibold text-[color:var(--text)]">{txI(s.profile.lang, "Sound effects", "সাউন্ড এফেক্ট")}</h3>
+        <p className="text-sm text-[color:var(--dim)]">
+          {txI(s.profile.lang, "Short, quiet tones for taps, correct answers, and level completions — synthesized in your browser, no audio files. They play only when you tap or answer, never on their own. Off silences every sound in the app.", "Tap, সঠিক উত্তর আর level শেষ করার জন্য ছোট, শান্ত tone — browser-এই তৈরি, কোনো audio file নেই। শুধু তুমি tap বা উত্তর দিলেই বাজে, নিজে থেকে কখনো নয়। Off করলে app-এর সব sound বন্ধ হয়ে যায়।")}
+        </p>
+        <div className="flex items-center gap-1" role="group" aria-label={txI(s.profile.lang, "Sound effects", "সাউন্ড এফেক্ট")}>
+          <button type="button" aria-pressed={soundOn}
+            onClick={() => { setSoundEnabled(true); sfxSuccess(); }}
+            className={`min-h-[36px] rounded-lg px-2.5 py-1 text-xs font-semibold ${soundOn ? "bg-[color:var(--accent2)] text-white" : "border border-[color:var(--border)] text-[color:var(--dim)]"}`}>
+            {txI(s.profile.lang, "Sound on", "Sound চালু")}
+          </button>
+          <button type="button" aria-pressed={!soundOn}
+            onClick={() => { sfxClick(); setSoundEnabled(false); }}
+            className={`min-h-[36px] rounded-lg px-2.5 py-1 text-xs font-semibold ${!soundOn ? "bg-[color:var(--accent2)] text-white" : "border border-[color:var(--border)] text-[color:var(--dim)]"}`}>
+            {txI(s.profile.lang, "Sound off", "Sound বন্ধ")}
+          </button>
+        </div>
       </Card>
 
       <Card className="space-y-3">
@@ -215,7 +237,7 @@ export function SettingsView() {
         </div>
         {accountMsg ? <p role="status" className="text-sm text-[color:var(--accent)]">{accountMsg}</p> : null}
         <p className="text-xs text-[color:var(--dim)]">
-          {txI(s.profile.lang, "Sessions last 30 days. Logging out deletes the session on the server too. Password reset by email is not in this version — keep your password in a password manager.", "Session-এর মেয়াদ 30 দিন। Log out করলে session server থেকেও মুছে যায়। Email দিয়ে password reset এই version-এ নেই — password password manager-এ রেখো।")}
+          {txI(s.profile.lang, "Sessions last 30 days. Logging out deletes the session on the server too. Forgot your password? Reset it by email from the sign-in screen.", "Session-এর মেয়াদ 30 দিন। Log out করলে session server থেকেও মুছে যায়। Password ভুলে গেলে sign-in screen থেকে email দিয়ে reset করতে পারো।")}
         </p>
       </Card>
 
@@ -248,6 +270,19 @@ export function SettingsView() {
           )}
         </div>
         {importMsg ? <p role="status" className="text-sm text-[color:var(--accent)]">{importMsg}</p> : null}
+      </Card>
+
+      <Card className="space-y-2">
+        <h3 className="font-semibold text-[color:var(--text)]">{txI(s.profile.lang, "About CyberLab", "CyberLab সম্পর্কে")}</h3>
+        <p className="text-sm text-[color:var(--dim)]">
+          {txI(s.profile.lang, "Levels 0–31 · 333 lessons · labs, missions, CTF — a hands-on cybersecurity and computer science learning platform.", "Levels 0–31 · 333টা lesson · lab, mission, CTF — হাতে-কলমে cybersecurity ও computer science শেখার platform।")}
+        </p>
+        {goPrivacy ? (
+          <button type="button" onClick={goPrivacy} className="cl-lift min-h-[44px] rounded border border-[color:var(--border)] px-3 py-2 text-sm font-semibold text-[color:var(--accent)]">
+            {txI(s.profile.lang, "Privacy & Policy", "গোপনীয়তা নীতি")}
+          </button>
+        ) : null}
+        <CopyrightLine />
       </Card>
     </div>
   );

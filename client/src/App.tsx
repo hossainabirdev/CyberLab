@@ -37,6 +37,8 @@ import { EXERCISE_CODE } from "./exercise-code";
 import { pcPracticeFor, realExampleFor } from "./real-practice";
 import { AccountSecurityView, AnalyticsView, AssessmentView, CareersView, IntelView, KnowledgeBaseView, PentestView, SocView } from "./Views2";
 import { ResearchView, SettingsView } from "./Views3";
+import { sfxClick, sfxError, sfxLevelUp, sfxSuccess } from "./sound";
+import { CopyrightLine, PrivacyView } from "./Privacy";
 import { PwaInstallBanner } from "./PwaInstall";
 import { AttackTrackView } from "./Attack";
 import { COMPARE4 } from "./compare4";
@@ -189,6 +191,7 @@ function QuestionRunner({ id, kind, xp, title, tasks, passNote, bnTasks, bnPassN
     const pct = Math.round((correct / tasks.length) * 100);
     setResult(pct);
     onResult?.(pct);
+    if (pct >= 70) sfxSuccess(); else sfxError();
     if (pct >= 70 && !suppressComplete) completeItem(kind, id, xp, pct, title);
   };
   const answeredCount = answers.filter((a) => a !== null).length;
@@ -226,7 +229,7 @@ function QuestionRunner({ id, kind, xp, title, tasks, passNote, bnTasks, bnPassN
         {done ? <Badge tone="ok">{txI(s.profile.lang, "Completed", "সম্পূর্ণ")} · {xp} XP</Badge> : null}
       </div>
       {result !== null ? (
-        <p role="status" className={`rounded-md border p-3 text-sm ${result >= 70 ? "border-emerald-800 bg-emerald-950/30 text-emerald-200" : "border-amber-800 bg-amber-950/30 text-amber-100"}`}>
+        <p role="status" className={`cl-pop rounded-md border p-3 text-sm ${result >= 70 ? "border-emerald-800 bg-emerald-950/30 text-emerald-200" : "border-amber-800 bg-amber-950/30 text-amber-100"}`}>
           {txf(s.profile.lang, "Score {result}% — {note}", "স্কোর {result}% — {note}", { result, note: result >= 70 ? tx(passNote, bnPassNote) : txI(s.profile.lang, "below the 70% completion bar. Read the explanations, reset, and retry — no XP for a failed run.", "৭০% পাস সীমার নিচে। ব্যাখ্যাগুলো পড়ো, আবার শুরু করে চেষ্টা করো — ব্যর্থ run-এ কোনো XP নেই।") })}
         </p>
       ) : null}
@@ -1137,7 +1140,7 @@ function CheckpointView({ cp, back, goLesson }: { cp: Checkpoint; back: () => vo
       </div>
       <Quiz id={cp.id} title="Checkpoint quiz (mixed lessons)" questions={cp.quiz} topics={topics} onPass={() => setQuizOk(true)} bnQ={CHECKPOINT_BN[cp.id]?.quiz} />
       <PracticalView id={cp.id} task={cp.practical} heading="Checkpoint practical (combined scenario)" onPass={() => setPracOk(true)} bn={CHECKPOINT_BN[cp.id]?.practical} />
-      {done ? <p role="status" className="rounded-md border border-emerald-800 bg-emerald-950/30 p-3 text-sm text-emerald-200">Checkpoint passed — the next section is unlocked.</p> : null}
+      {done ? <p role="status" className="cl-pop rounded-md border border-emerald-800 bg-emerald-950/30 p-3 text-sm text-emerald-200">Checkpoint passed — the next section is unlocked.</p> : null}
     </article>
   );
 }
@@ -1154,6 +1157,12 @@ function FinalView({ fin, back }: { fin: LevelFinal; back: () => void }) {
   useEffect(() => {
     if (!done && quizOk && allPrac && compared && written.trim().length >= 40) {
       completeItem("final", fin.id, fin.xp, 100, `${fin.title} — badge: ${fin.badge}`);
+      // Level-up arpeggio, slightly delayed so it follows (never overlaps)
+      // the success tone of whichever check completed the final. The timer
+      // is deliberately NOT cleared on cleanup: completeItem flips `done`
+      // immediately, which re-runs this effect and would cancel the tone
+      // before it could ever play.
+      window.setTimeout(() => sfxLevelUp(), 200);
     }
   }, [quizOk, allPrac, compared, written, done, fin]);
   return (
@@ -1178,7 +1187,7 @@ function FinalView({ fin, back }: { fin: LevelFinal; back: () => void }) {
           className="min-h-[44px] rounded border border-[color:var(--border)] px-3 py-2 text-sm text-[color:var(--text)] disabled:opacity-40">Compare with model answer</button>
         {compared ? <div className="rounded-md border border-[color:var(--border)] bg-[color:var(--surface)] p-3 text-sm leading-relaxed text-[color:var(--dim)]"><p className="mb-1 font-medium text-[color:var(--text)]">Model answer — judge your draft against it honestly:</p>{s.profile.lang === "bn" ? (WRITTEN_MODEL_BN[fin.id] ?? fin.written.model) : fin.written.model}</div> : null}
       </div>
-      {done ? <p role="status" className="rounded-md border border-emerald-800 bg-emerald-950/30 p-3 text-sm text-emerald-200">Level {fin.level} complete — badge “{fin.badge}” earned, skill step {fin.skillStep}. The next level is now unlocked.</p> : null}
+      {done ? <p role="status" className="cl-pop rounded-md border border-emerald-800 bg-emerald-950/30 p-3 text-sm text-emerald-200">Level {fin.level} complete — badge “{fin.badge}” earned, skill step {fin.skillStep}. The next level is now unlocked.</p> : null}
     </article>
   );
 }
@@ -1217,7 +1226,7 @@ function Dashboard({ go, openNode }: { go: (v: View) => void; openNode: (n: Path
     return { sk, dn, total: ls.length, pct: ls.length ? (dn / ls.length) * 100 : 0 };
   });
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       {/* PWA install strip — renders only when this browser can really
           install the app (or is iOS, where Settings holds the steps). */}
       <PwaInstallBanner onGoSettings={() => go("settings")} />
@@ -1284,7 +1293,7 @@ function Dashboard({ go, openNode }: { go: (v: View) => void; openNode: (n: Path
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Card accent="#f59e0b"><div className="flex items-start justify-between gap-2"><div><p className="text-2xl font-bold text-[color:var(--text)]">{xp} XP</p><p className="text-sm text-[color:var(--dim)]">{s.profile.username ? `@${s.profile.username}` : "Learner"} · {s.profile.goalRole || "Goal not set"}</p></div><ProgressRing value={Math.min(100, (xp % 500) / 5)} size={54} stroke={6} color="#f59e0b" label="XP to next milestone" /></div><div className="mt-3"><XpBar xp={xp % 500} /></div></Card>
         <Card accent="#fb923c"><p className="text-2xl font-bold text-[color:var(--text)]">{s.profile.lang === "en" ? `${streak} day${streak === 1 ? "" : "s"}` : txf(s.profile.lang, "{a} days", "{a} দিন", { a: streak })}</p><p className="text-sm text-[color:var(--dim)]">{txI(s.profile.lang, "Learning streak", "শেখার ধারাবাহিকতা")}</p><div className="mt-3 flex items-center gap-3"><ProgressRing value={dailyPct} size={54} stroke={6} color="#fb923c" label="Daily goal progress" /><p className="text-xs leading-relaxed text-[color:var(--dim)]">Daily goal: {s.profile.dailyGoalMinutes} min<br />{todayActs} learning action{todayActs === 1 ? "" : "s"} today</p></div></Card>
-        <Card accent="#38bdf8"><p className="text-2xl font-bold text-[color:var(--text)]">{doneLessons}/{ALL_LESSONS.length}</p><p className="text-sm text-[color:var(--dim)]">Published lessons completed — checkpoints &amp; finals gate the levels</p><div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[color:var(--surface2)]"><div className="h-full rounded-full bg-sky-500" style={{ width: `${ALL_LESSONS.length ? (doneLessons / ALL_LESSONS.length) * 100 : 0}%` }} /></div></Card>
+        <Card accent="#38bdf8"><p className="text-2xl font-bold text-[color:var(--text)]">{doneLessons}/{ALL_LESSONS.length}</p><p className="text-sm text-[color:var(--dim)]">Published lessons completed — checkpoints &amp; finals gate the levels</p><div className="mt-3 h-2.5 overflow-hidden rounded-full bg-[color:var(--surface2)]"><div className="cl-progress-anim h-full rounded-full bg-sky-500" style={{ width: `${ALL_LESSONS.length ? (doneLessons / ALL_LESSONS.length) * 100 : 0}%` }} /></div></Card>
         <Card accent="#a78bfa"><p className="text-2xl font-bold text-[color:var(--text)]">{s.diagnostic ? `${s.diagnostic.score}/${s.diagnostic.total}` : "Not taken"}</p><p className="text-sm text-[color:var(--dim)]">Diagnostic — sets pace &amp; revision order only; it never skips prerequisites</p>{!s.diagnostic ? <button type="button" onClick={() => go("assessment")} className="mt-2 min-h-[40px] rounded-lg border border-[color:var(--border)] px-3 py-1.5 text-sm font-semibold text-[color:var(--accent)]">Take the diagnostic →</button> : null}</Card>
       </div>
 
@@ -1353,7 +1362,7 @@ function PathsView({ openNode }: { openNode: (n: PathNode) => void }) {
     openNode(n);
   };
   return (
-    <div className="space-y-6">
+    <div className="cl-stagger space-y-6">
       <JourneyStrip nextLabel="follow the highlighted current step below" />
       <SectionTitle bn="শেখার পথ" bnSub="একটাই ধারাবাহিক পথ: পাঠ → checkpoint → level final। প্রতিটি lab, mission ও CTF তার পাঠের ভেতরেই যুক্ত — আগের ধাপ শেষ না হলে পরেরটি খুলবে না। একটাই ব্যতিক্রম: Level 4 একটি খোলা এন্ট্রি পয়েন্ট — Level 0–3 শেষ না করেও তার প্রথম পাঠ থেকে শুরু করা যায় (নিচে Level 4-এর note দেখো)।" sub="One journey, in order: Lesson test → Checkpoint (after every 3–4 lessons, mixing them) → Level Final (unlocks the next level + badge). Labs, missions and CTF are woven into the lessons they belong to. One exception: Level 4 is an open entry point — its first lesson is open without finishing Levels 0–3 (see the note on Level 4 below).">
         Learning Paths
@@ -1651,7 +1660,7 @@ function LabsView({ goLesson }: { goLesson: (id: string) => void }) {
   const unlockedCount = LABS.filter((l) => isUnlocked(s, LAB_REQUIRES[l.id]) || isDone(s, "lab", l.id)).length;
   const nextLocked = LABS.find((l) => !isUnlocked(s, LAB_REQUIRES[l.id]) && !isDone(s, "lab", l.id));
   return (
-    <div className="space-y-4">
+    <div className="cl-stagger space-y-4">
       <JourneyStrip nextLabel={nextLocked ? `Lab: ${nextLocked.title}` : "keep revising any open lab"} />
       <SectionTitle eyebrow="Workshop bench · Step 2" orderEn={SECTION_ORDER.labs.en} orderBn={SECTION_ORDER.labs.bn} bn="ইন্টার‌্যাক্টিভ ল্যাব" bnSub="প্রতিটি lab ঠিক পাঠের মতোই একটি অধ্যায়: মূল কথা ও সংজ্ঞা, পাশে worked example-এর live try pane, শেষে exercise। Lab শেষ হয় তখনই যখন try area-তে সত্যিই Run করেছ (text sample হলে copy) আর কাজে ≥৭০% পেয়েছ — শুধু উত্তরে Lab বন্ধ হয় না।" sub="Each lab is a chapter in the same shape as a lesson: the main point and definitions beside the worked example's live try pane, exercises at the end. A lab closes only when you have actually run the worked example in the try area (copied it, for a text sample) AND scored ≥70% on the tasks — answers alone never close a lab.">
         Interactive Labs
@@ -1822,7 +1831,7 @@ function MissionRunner({ m }: { m: Mission }) {
           </div>
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <button type="button" disabled={pick === null || pracState === "right" || !doingOk}
-              onClick={() => setPracState(pick === check.answer ? "right" : "wrong")}
+              onClick={() => { const ok = pick === check.answer; if (ok) sfxSuccess(); else sfxError(); setPracState(ok ? "right" : "wrong"); }}
               className="min-h-[44px] rounded bg-[color:var(--accent2)] px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">
               {txI(s.profile.lang, "Check answer", "উত্তর যাচাই করো")}
             </button>
@@ -1863,7 +1872,7 @@ function MissionsView({ goLesson }: { goLesson: (id: string) => void }) {
   const unlockedCount = MISSIONS.filter((m) => isUnlocked(s, MISSION_REQUIRES[m.id]) || isDone(s, "mission", m.id)).length;
   const nextLocked = MISSIONS.find((m) => !isUnlocked(s, MISSION_REQUIRES[m.id]) && !isDone(s, "mission", m.id));
   return (
-    <div className="space-y-4">
+    <div className="cl-stagger space-y-4">
       <JourneyStrip nextLabel={nextLocked ? `Mission: ${nextLocked.title}` : "keep revising any open case"} />
       <SectionTitle eyebrow="Case files · Step 4" orderEn={SECTION_ORDER.missions.en} orderBn={SECTION_ORDER.missions.bn} bn="মিশন" bnSub="প্রতিটি mission ঠিক পাঠের মতোই একটি অধ্যায়: মূল কথা (case), তারপর হাতে-কলমে ধাপ, শেষে সিদ্ধান্ত। Try-mode mission-এ try area-তে সত্যিই Run করতে হয়; PC-mode mission-এ artefact বানিয়ে প্রতিটি ধাপের সৎ self-check tick দিতে হয় — তারপরেই practical যাচাই খোলে। সব gate পাস হলেই mission শেষ হয়।" sub="Each mission is a chapter in the same shape as a lesson: the main point (the case), then the hands-on step, then the decision. A try-mode mission requires a real Run in the try area; a PC-mode mission requires making the artefact and ticking the honest self-check for every step — only then does the practical check open. Every gate passed closes the mission.">
         Missions
@@ -1938,7 +1947,7 @@ function CtfView({ goLesson }: { goLesson: (id: string) => void }) {
   const unlockedCount = CTFS.filter((c) => isUnlocked(s, CTF_REQUIRES[c.id]) || isDone(s, "ctf", c.id)).length;
   const nextLocked = CTFS.find((c) => !isUnlocked(s, CTF_REQUIRES[c.id]) && !isDone(s, "ctf", c.id));
   return (
-    <div className="space-y-4">
+    <div className="cl-stagger space-y-4">
       <JourneyStrip nextLabel={nextLocked ? `CTF: ${nextLocked.title}` : "keep solving any open challenge"} />
       <SectionTitle eyebrow="Challenge board · Step 7" orderEn={SECTION_ORDER.ctf.en} orderBn={SECTION_ORDER.ctf.bn} bn="CTF এরিনা" bnSub="প্রতিটি challenge তার পাঠের পরে খোলে। বন্ধ challenge কী শেখায় তা দেখা যাবে, কিন্তু তার flag বা সূত্র আগেভাগে দেখা যাবে না — আগে শেখো, তারপর প্রমাণ করো।" sub="Each challenge opens after its lesson group. A locked challenge always shows what it teaches — never its artifact, hint, or flag. Challenges are grouped below by difficulty band.">
         CTF Arena
@@ -1973,8 +1982,8 @@ function CtfView({ goLesson }: { goLesson: (id: string) => void }) {
               <button type="button" disabled={solved || !(flags[c.id] ?? "").trim()} className="min-h-[44px] rounded bg-[color:var(--accent2)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"
                 onClick={async () => {
                   const h = await sha256Hex(flags[c.id] ?? "");
-                  if (h === c.flagHash) { completeItem("ctf", c.id, c.xp, 100, `CTF: ${c.title}`); setVerdicts((v) => ({ ...v, [c.id]: "correct" })); }
-                  else setVerdicts((v) => ({ ...v, [c.id]: "wrong" }));
+                  if (h === c.flagHash) { sfxSuccess(); completeItem("ctf", c.id, c.xp, 100, `CTF: ${c.title}`); setVerdicts((v) => ({ ...v, [c.id]: "correct" })); }
+                  else { sfxError(); setVerdicts((v) => ({ ...v, [c.id]: "wrong" })); }
                 }}>{txI(s.profile.lang, "Submit flag", "Flag জমা দাও")}</button>
               <button type="button" className="min-h-[44px] rounded border border-[color:var(--border)] px-3 py-2 text-sm text-[color:var(--text)]"
                 onClick={() => setHints((h) => ({ ...h, [c.id]: !h[c.id] }))}>{hints[c.id] ? (txI(s.profile.lang, "Hide hint", "ইঙ্গিত লুকাও")) : (txI(s.profile.lang, "Hint", "ইঙ্গিত"))}</button>
@@ -1982,8 +1991,8 @@ function CtfView({ goLesson }: { goLesson: (id: string) => void }) {
                 onClick={() => { setFlags((f) => ({ ...f, [c.id]: "" })); setVerdicts((v) => ({ ...v, [c.id]: "" })); }}>{txI(s.profile.lang, "Reset", "আবার")}</button>
             </div>
             {hints[c.id] ? <p className="mt-2 rounded-lg bg-amber-950/30 p-3 text-sm text-amber-200">💡 {txI(s.profile.lang, "Hint: ", "ইঙ্গিত: ")}{tx(c.hint, CTF_BN[c.id]?.hint)}</p> : null}
-            {verdicts[c.id] === "wrong" ? <p role="alert" className="mt-2 rounded-lg bg-red-950/30 p-3 text-sm text-red-300">{txI(s.profile.lang, "✗ Incorrect flag — re-check the evidence artifact and the hint, then try again.", "✗ ভুল flag — প্রমাণ artifact আর ইঙ্গিত আবার দেখো, তারপর চেষ্টা করো।")}</p> : null}
-            {solved ? <p role="status" className="mt-2 rounded-lg border border-emerald-700 bg-emerald-950/40 p-3 text-sm leading-relaxed text-emerald-200">🏁 <strong>{txI(s.profile.lang, "Flag accepted — challenge solved!", "Flag গৃহীত হয়েছে — challenge সমাধান!")}</strong> {tx(c.explanation, CTF_BN[c.id]?.explanation)}</p> : null}
+            {verdicts[c.id] === "wrong" ? <p role="alert" className="cl-pop mt-2 rounded-lg bg-red-950/30 p-3 text-sm text-red-300">{txI(s.profile.lang, "✗ Incorrect flag — re-check the evidence artifact and the hint, then try again.", "✗ ভুল flag — প্রমাণ artifact আর ইঙ্গিত আবার দেখো, তারপর চেষ্টা করো।")}</p> : null}
+            {solved ? <p role="status" className="cl-pop mt-2 rounded-lg border border-emerald-700 bg-emerald-950/40 p-3 text-sm leading-relaxed text-emerald-200">🏁 <strong>{txI(s.profile.lang, "Flag accepted — challenge solved!", "Flag গৃহীত হয়েছে — challenge সমাধান!")}</strong> {tx(c.explanation, CTF_BN[c.id]?.explanation)}</p> : null}
             </>)}
           </Card>
         );
@@ -1999,7 +2008,7 @@ function ProjectsView({ goLesson }: { goLesson: (id: string) => void }) {
   const unlockedCount = PROJECTS.filter((pr) => isUnlocked(s, PROJECT_REQUIRES[pr.id]) || isDone(s, "project", pr.id)).length;
   const nextLocked = PROJECTS.find((pr) => !isUnlocked(s, PROJECT_REQUIRES[pr.id]) && !isDone(s, "project", pr.id));
   return (
-    <div className="space-y-4">
+    <div className="cl-stagger space-y-4">
       <JourneyStrip nextLabel={nextLocked ? `Project ${nextLocked.code}: ${nextLocked.title}` : "keep building any open project"} />
       <SectionTitle eyebrow="Portfolio dossier · Step 8" orderEn={SECTION_ORDER.projects.en} orderBn={SECTION_ORDER.projects.bn} bn="প্রজেক্ট" bnSub="প্রতিটি project তার ভিত্তি-পাঠগুলো শেষ হলেই খোলে — ছোট থেকে বড়, ধাপে ধাপে। প্রতিটি project তোমার portfolio-র প্রমাণ: ধাপ, প্রমাণ আর report একসাথে রাখো।" sub="Each project opens when the lessons it builds on are complete — small foundations first, capstone work when you are ready for it. Each project is portfolio evidence: steps, evidence and a written report, kept together.">
         Projects
@@ -2050,7 +2059,7 @@ function ProjectsView({ goLesson }: { goLesson: (id: string) => void }) {
 
 /* ================= Shell ================= */
 
-type View = "dashboard" | "paths" | "courses" | "labs" | "terminal" | "universal" | "missions" | "ctf" | "projects" | "assessment" | "kb" | "intel" | "soc" | "pentest" | "attack" | "research" | "account" | "careers" | "analytics" | "settings";
+type View = "dashboard" | "paths" | "courses" | "labs" | "terminal" | "universal" | "missions" | "ctf" | "projects" | "assessment" | "kb" | "intel" | "soc" | "pentest" | "attack" | "research" | "account" | "careers" | "analytics" | "settings" | "privacy";
 
 const NAV: { id: View; label: string; group: string }[] = [
   { id: "dashboard", group: "Learn", label: "Dashboard" },
@@ -2073,6 +2082,7 @@ const NAV: { id: View; label: string; group: string }[] = [
   { id: "careers", group: "Reference — always open", label: "Career Center" },
   { id: "analytics", group: "Reference — always open", label: "Progress & Analytics" },
   { id: "settings", group: "Reference — always open", label: "Settings" },
+  { id: "privacy", group: "Reference — always open", label: "Privacy & Policy" },
 ];
 
 export function App() {
@@ -2112,13 +2122,15 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view, openLessonId, openCpId, openFinId]);
 
-  const go = (v: View) => { setView(v); setOpenLessonId(null); setOpenCpId(null); setOpenFinId(null); setMenuOpen(false); };
+  const go = (v: View) => { sfxClick(); setView(v); setOpenLessonId(null); setOpenCpId(null); setOpenFinId(null); setMenuOpen(false); };
   const goLesson = (id: string) => {
     const idx = PATH.findIndex((n) => n.type === "lesson" && n.lesson.id === id);
     if (idx !== -1 && !nodeUnlocked(s, idx)) { setView("paths"); return; }
+    sfxClick();
     setOpenLessonId(id); setOpenCpId(null); setOpenFinId(null); setView("courses");
   };
   const openNode = (n: PathNode) => {
+    sfxClick();
     if (n.type === "lesson") { setOpenLessonId(n.lesson.id); setView("courses"); }
     else if (n.type === "checkpoint") { setOpenCpId(n.cp.id); setView("paths"); }
     else { setOpenFinId(n.fin.id); setView("paths"); }
@@ -2163,7 +2175,7 @@ export function App() {
             <p className="flex items-center gap-2.5"><CyberLabLogo size={36} /><span className="min-w-0"><span className="cl-display block text-[17px] font-bold leading-tight">CyberLab</span><span className="block truncate text-[11px] opacity-85">{s.profile.displayName || "Learner"}{s.profile.username ? ` · @${s.profile.username}` : ""}</span></span></p>
             <p className="mt-2 text-xs opacity-95">{txf(s.profile.lang, "{xp} XP · {a}-day streak", "{xp} XP · {a} দিনের ধারাবাহিকতা", { xp, a: streakDays(s) })}</p>
             <p className="text-[11px] opacity-75">{syncLabel}</p>
-            <div className="cl-profile-track mt-2 h-2 overflow-hidden rounded-full"><div className="h-full rounded-full bg-amber-300" style={{ width: `${Math.min(100, (xp % 500) / 5)}%` }} /></div>
+            <div className="cl-profile-track mt-2 h-2 overflow-hidden rounded-full"><div className="cl-progress-anim h-full rounded-full bg-amber-300" style={{ width: `${Math.min(100, (xp % 500) / 5)}%` }} /></div>
             <p className="mt-1 text-[11px] opacity-85">{xp % 500} / 500 XP to next milestone</p>
           </div>
           <nav className="cl-scroll-thin cl-sidebar-nav space-y-0.5 pb-2" aria-label="Sections by group">
@@ -2171,7 +2183,7 @@ export function App() {
               <div key={n.id}>
                 {(i === 0 || NAV[i - 1]?.group !== n.group) ? <p className="px-3 pb-1 pt-3 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[color:var(--dim)]">{n.group}</p> : null}
                 <button type="button" onClick={() => go(n.id)} aria-current={view === n.id ? "page" : undefined}
-                  className={`flex min-h-[38px] w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-[13px] ${view === n.id ? "font-semibold text-white shadow" : "text-[color:var(--dim)] hover:bg-[color:var(--surface2)] hover:text-[color:var(--text)]"}`}
+                  className={`cl-nav-item flex min-h-[38px] w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-[13px] ${view === n.id ? "font-semibold text-white shadow" : "text-[color:var(--dim)] hover:bg-[color:var(--surface2)] hover:text-[color:var(--text)]"}`}
                   style={view === n.id ? { background: `linear-gradient(90deg, ${trackForView(n.id)}, color-mix(in srgb, ${trackForView(n.id)} 55%, var(--accent2)))`, color: "#fff" } : undefined}>
                   <SectionIcon kind={n.id} size={17} color={view === n.id ? "#fff" : trackForView(n.id)} />
                   <span className="min-w-0 flex-1 truncate">{navLabel(s.profile.lang, n.id, n.label)}</span>
@@ -2217,7 +2229,7 @@ export function App() {
                   <div key={n.id}>
                     {(i === 0 || NAV[i - 1]?.group !== n.group) ? <p className="px-2 pb-1 pt-3 text-[10.5px] font-bold uppercase tracking-[0.08em] text-[color:var(--dim)]">{n.group}</p> : null}
                     <button type="button" onClick={() => go(n.id)} aria-current={view === n.id ? "page" : undefined}
-                      className={`flex min-h-[48px] w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm ${view === n.id ? "font-semibold text-white shadow" : "text-[color:var(--text)] hover:bg-[color:var(--surface2)]"}`}
+                      className={`cl-nav-item flex min-h-[48px] w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-sm ${view === n.id ? "font-semibold text-white shadow" : "text-[color:var(--text)] hover:bg-[color:var(--surface2)]"}`}
                       style={view === n.id ? { background: `linear-gradient(90deg, ${trackForView(n.id)}, color-mix(in srgb, ${trackForView(n.id)} 55%, var(--accent2)))`, color: "#fff" } : undefined}>
                       <SectionIcon kind={n.id} size={18} color={view === n.id ? "#fff" : trackForView(n.id)} />
                       <span className="min-w-0 flex-1 truncate">{navLabel(s.profile.lang, n.id, n.label)}</span>
@@ -2239,7 +2251,7 @@ export function App() {
 
           <main ref={mainScrollRef} tabIndex={0} onScroll={syncScrollBtns} aria-label="Main content — scrollable"
             className="cl-main-scroll min-h-0 w-full flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-[1440px] px-3 py-4 pb-28 sm:px-5 sm:py-6 lg:px-8 lg:pb-20">
+            <div key={`${view}|${openLessonId ?? ""}|${openCpId ?? ""}|${openFinId ?? ""}`} className="cl-view-in mx-auto w-full max-w-[1440px] px-3 py-4 pb-28 sm:px-5 sm:py-6 lg:px-8 lg:pb-20">
             {/* EDITOR ISOLATION (bug fix, 15 Nov 2026): these views are keyed
                 by the open item's id so navigating item → item REMOUNTS the
                 whole subtree. Without the key React reused the mounted view,
@@ -2301,9 +2313,20 @@ export function App() {
               <CareersView />
             ) : view === "analytics" ? (
               <AnalyticsView goLesson={goLesson} />
+            ) : view === "privacy" ? (
+              <PrivacyView />
             ) : (
-              <SettingsView />
+              <SettingsView goPrivacy={() => go("privacy")} />
             )}
+            {/* App footer — Privacy & Policy + copyright, on every screen
+                (dashboard, lessons, games/CTF, settings…). */}
+            <footer className="mt-10 border-t border-[color:var(--border)] pt-4 text-center">
+              <button type="button" onClick={() => go("privacy")}
+                className="cl-lift min-h-[36px] px-2 text-[12px] font-semibold text-[color:var(--accent)] underline-offset-2 hover:underline">
+                {txI(s.profile.lang, "Privacy & Policy", "গোপনীয়তা নীতি")}
+              </button>
+              <CopyrightLine className="mt-0.5" />
+            </footer>
             </div>
           </main>
 

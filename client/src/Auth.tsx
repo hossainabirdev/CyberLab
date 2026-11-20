@@ -11,6 +11,8 @@
 import { useEffect, useState } from "react";
 import { LangMenu, ThemeToggle, useStore } from "./ui";
 import { CyberLabLogo } from "./Visuals";
+import { CopyrightLine, PrivacyView } from "./Privacy";
+import { sfxClick, sfxError, sfxSuccess } from "./sound";
 import { cfRequestPasswordReset, cfResetPassword, cfSignIn, cfSignUp, cfTestConnection, totalXp, USERNAME_RE } from "./store";
 import { tx, txf } from "./i18n";
 
@@ -30,6 +32,9 @@ export function AuthView() {
   // server says email sending is not configured, that honest error is
   // shown as-is — the UI never claims a code was sent when it was not.
   const [view, setView] = useState<"auth" | "forgot" | "reset">("auth");
+  // Privacy & Policy is readable before sign-in (user order, v47): the
+  // login footer opens it as a full-screen overlay over this screen.
+  const [showPrivacy, setShowPrivacy] = useState(false);
   const [resetId, setResetId] = useState("");
   const [resetCode, setResetCode] = useState("");
   const [resetPw, setResetPw] = useState("");
@@ -54,7 +59,7 @@ export function AuthView() {
     return () => { alive = false; };
   }, []);
 
-  const inputCls = "min-h-[48px] w-full rounded-lg border border-[color:var(--border)] bg-[color:var(--surface2)] px-3 py-2 text-[15px] text-[color:var(--text)]";
+  const inputCls = "min-h-[48px] w-full rounded-lg border border-[color:var(--border)] bg-[color:var(--surface2)] px-3 py-2 text-[15px] text-[color:var(--text)] transition-[border-color,box-shadow] duration-200 focus:border-[color:var(--accent)]";
   const tabCls = (active: boolean) =>
     `min-h-[44px] flex-1 rounded-lg px-3 py-2 text-sm font-semibold ${active ? "bg-[color:var(--accent2)] text-white" : "border border-[color:var(--border)] text-[color:var(--text)]"}`;
 
@@ -66,11 +71,13 @@ export function AuthView() {
     }
     setBusy(true); setMsg("");
     const r = await cfSignUp(username, email, password);
+    if (r.ok) sfxSuccess(); else sfxError();
     setMsg(r.message); setMsgOk(r.ok); setBusy(false);
   };
   const doSignIn = async () => {
     setBusy(true); setMsg("");
     const r = await cfSignIn(identifier, password);
+    if (r.ok) sfxSuccess(); else sfxError();
     setMsg(r.message); setMsgOk(r.ok); setBusy(false);
   };
 
@@ -127,16 +134,16 @@ export function AuthView() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-[color:var(--bg)] text-[color:var(--text)]">
+    <div className={`flex min-h-dvh flex-col bg-[color:var(--bg)] text-[color:var(--text)] ${showPrivacy ? "max-h-dvh overflow-hidden" : ""}`}>
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-8">
         <div className="mb-4 flex items-center justify-between gap-2">
           <LangMenu />
           <ThemeToggle />
         </div>
 
-        <div className="cl-card rounded-[var(--radius)] border border-[color:var(--border)] bg-[color:var(--surface)] p-5 sm:p-6">
+        <div className="cl-card cl-fade rounded-[var(--radius)] border border-[color:var(--border)] bg-[color:var(--surface)] p-5 sm:p-6">
           <div className="flex flex-col items-center text-center">
-            <CyberLabLogo size={56} />
+            <span className="cl-logo-glow"><CyberLabLogo size={56} animated /></span>
             <h1 className="cl-display mt-3 text-[28px] font-bold leading-tight">CyberLab</h1>
             <p className="mt-1 text-sm leading-relaxed text-[color:var(--dim)]">
               {T("Levels 0–31 · 333 lessons · labs, missions, CTF — every step saves to your account, on any device.", "Levels 0–31 · 333টা lesson · lab, mission, CTF — সব progress তোমার account-এ save হয়, যেকোনো device-এ।")}
@@ -146,19 +153,14 @@ export function AuthView() {
           {view === "auth" ? (<>
           <div className="mt-5 flex gap-2" role="tablist" aria-label={T("Account", "অ্যাকাউন্ট")}>
             <button type="button" role="tab" aria-selected={mode === "signin"} className={tabCls(mode === "signin")}
-              onClick={() => { setMode("signin"); setMsg(""); }}>
+              onClick={() => { sfxClick(); setMode("signin"); setMsg(""); }}>
               {T("Sign in")}
             </button>
             <button type="button" role="tab" aria-selected={mode === "signup"} className={tabCls(mode === "signup")}
-              onClick={() => { setMode("signup"); setMsg(""); }}>
+              onClick={() => { sfxClick(); setMode("signup"); setMsg(""); }}>
               {T("Create account", "Account খোলো")}
             </button>
           </div>
-          <p className="mt-2 text-center text-[13px] text-[color:var(--dim)]">
-            {mode === "signin"
-              ? T("Already have an account? Sign in and all your progress is right there.", "আগে account খুলেছিলে? Sign in করলেই তোমার সব progress ফিরে আসবে।")
-              : T("New here? Create your account first — then straight to your Dashboard.", "নতুন হলে আগে account খোলো — তারপর সরাসরি Dashboard।")}
-          </p>
           </>) : null}
 
           {serverState === "offline" ? (
@@ -168,7 +170,7 @@ export function AuthView() {
           ) : null}
 
           {view === "auth" && mode === "signin" ? (
-            <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); void doSignIn(); }}>
+            <form className="cl-rise mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); void doSignIn(); }}>
               <label className="block text-sm text-[color:var(--dim)]">
                 {T("Username or email", "Username অথবা email")}
                 <input aria-label={T("Username or email", "Username অথবা email")} className={inputCls} value={identifier} autoComplete="username"
@@ -180,7 +182,7 @@ export function AuthView() {
                   onChange={(e) => setPassword(e.target.value)} />
               </label>
               <button type="submit" disabled={busy || serverState === "offline"}
-                className="min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                className="cl-lift min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
                 {busy ? T("Signing in…", "Sign in হচ্ছে…") : T("Sign in")}
               </button>
               <div className="text-right">
@@ -191,7 +193,7 @@ export function AuthView() {
               </div>
             </form>
           ) : view === "auth" ? (
-            <form className="mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); void doSignUp(); }}>
+            <form className="cl-rise mt-4 space-y-3" onSubmit={(e) => { e.preventDefault(); void doSignUp(); }}>
               <label className="block text-sm text-[color:var(--dim)]">
                 {T("Username (unique — cannot be changed later)", "Username (unique — পরে বদলানো যাবে না)")}
                 <input aria-label="Username" className={inputCls} value={username} autoComplete="username"
@@ -208,14 +210,14 @@ export function AuthView() {
                   onChange={(e) => setPassword(e.target.value)} />
               </label>
               <button type="submit" disabled={busy || serverState === "offline"}
-                className="min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                className="cl-lift min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
                 {busy ? T("Creating account…", "Account খোলা হচ্ছে…") : T("Create account", "Account খোলো")}
               </button>
             </form>
           ) : null}
 
           {view === "forgot" ? (
-            <div className="mt-4">
+            <div className="cl-rise mt-4">
               <h2 className="text-lg font-bold">{T("Reset your password", "Password reset করো")}</h2>
               <p className="mt-1 text-sm leading-relaxed text-[color:var(--dim)]">
                 {T("Enter the username or email of your account. A reset code will be sent to the account's email address.", "তোমার account-এর username অথবা email দাও। Account-এর email address-এ একটা reset code পাঠানো হবে।")}
@@ -227,7 +229,7 @@ export function AuthView() {
                     onChange={(e) => setResetId(e.target.value)} placeholder="username or you@example.com" />
                 </label>
                 <button type="submit" disabled={busy || serverState === "offline"}
-                  className="min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                  className="cl-lift min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
                   {busy ? T("Sending…", "পাঠানো হচ্ছে…") : T("Email me a reset code", "Email-এ reset code পাঠাও")}
                 </button>
               </form>
@@ -245,7 +247,7 @@ export function AuthView() {
           ) : null}
 
           {view === "reset" ? (
-            <div className="mt-4">
+            <div className="cl-rise mt-4">
               <h2 className="text-lg font-bold">{T("Reset your password", "Password reset করো")}</h2>
               <p className="mt-1 text-sm leading-relaxed text-[color:var(--dim)]">
                 {T("Enter the reset code from your email and choose a new password.", "Email-এ আসা reset code-টা দাও আর নতুন password বেছে নাও।")}
@@ -267,7 +269,7 @@ export function AuthView() {
                     onChange={(e) => setResetPw(e.target.value)} />
                 </label>
                 <button type="submit" disabled={busy}
-                  className="min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+                  className="cl-lift min-h-[48px] w-full rounded-lg bg-[color:var(--accent2)] px-4 py-2.5 text-[15px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
                   {busy ? T("Resetting…", "Reset হচ্ছে…") : T("Reset password", "Password reset করো")}
                 </button>
               </form>
@@ -296,11 +298,29 @@ export function AuthView() {
             </p>
           ) : null}
 
-          <p className="mt-4 text-center text-xs leading-relaxed text-[color:var(--dim)]">
-            {T("Sessions last 30 days. Five failed sign-ins lock that login for 15 minutes. Passwords are stored only as salted hashes — never in plain text.", "Session 30 দিন থাকে। 5 বার ভুল password দিলে login 15 মিনিট lock থাকে। Password salted hash হয়ে server-এ থাকে — plaintext কখনো না।")}
-          </p>
         </div>
+
+        {/* Login footer — Privacy & Policy + copyright (v47). */}
+        <footer className="mt-4 text-center">
+          <button type="button" onClick={() => setShowPrivacy(true)}
+            className="cl-lift min-h-[36px] px-2 text-[12px] font-semibold text-[color:var(--accent)] underline-offset-2 hover:underline">
+            {T("Privacy & Policy", "গোপনীয়তা নীতি")}
+          </button>
+          <CopyrightLine className="mt-0.5 text-center" />
+        </footer>
       </div>
+
+      {showPrivacy ? (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-[color:var(--bg)]" role="dialog" aria-modal="true" aria-label={T("Privacy & Policy", "গোপনীয়তা নীতি")}>
+          <div className="mx-auto w-full max-w-3xl px-4 py-5">
+            <button type="button" onClick={() => setShowPrivacy(false)}
+              className="mb-4 min-h-[44px] rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-4 py-2 text-sm font-semibold text-[color:var(--text)]">
+              ← {T("Back to sign in", "Sign in-এ ফিরে যাও")}
+            </button>
+            <PrivacyView />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

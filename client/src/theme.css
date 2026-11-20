@@ -513,3 +513,65 @@ html { scroll-behavior: smooth; }
 /* Section entrance — one gentle fade per lesson open, nothing continuous */
 .cl-lesson .cl-sec { animation: cl-fade-slide .26s cubic-bezier(.22,.8,.36,1) both; }
 @media (prefers-reduced-motion: reduce) { .cl-lesson .cl-sec { animation: none !important; } }
+
+/* ================================================================
+   V47 LIGHT MOTION — motion only, no look/layout change.
+   Transform/opacity micro-interactions (150–300ms), one short
+   stroke draw-in for the login logo's circuit traces, and one soft
+   glow pulse behind that same hero logo. Everything here is killed
+   by the global prefers-reduced-motion rule above, and nothing runs
+   layout or paint-heavy work, so a no-GPU Pentium stays smooth.
+   ================================================================ */
+
+/* Login logo: circuit traces draw themselves in once, staggered. */
+@keyframes cl-circuit-draw { to { stroke-dashoffset: 0; } }
+@keyframes cl-dot-in { from { opacity: 0; } to { opacity: 1; } }
+.cl-logo-svg .cl-draw { stroke-dasharray: 100; stroke-dashoffset: 100; animation: cl-circuit-draw .7s cubic-bezier(.22,.8,.36,1) forwards; }
+.cl-logo-svg .cl-draw-2 { animation-delay: .14s; }
+.cl-logo-svg .cl-draw-3 { animation-delay: .28s; }
+.cl-logo-svg .cl-draw-4 { animation-delay: .42s; }
+.cl-logo-svg .cl-dot { opacity: 0; animation: cl-dot-in .25s ease .5s forwards; }
+.cl-logo-svg .cl-dot-2 { animation-delay: .62s; }
+
+/* Login logo: soft shield glow that breathes (opacity only). */
+@keyframes cl-glow-pulse { 0%, 100% { opacity: .30; } 50% { opacity: .65; } }
+.cl-logo-glow { position: relative; display: inline-flex; }
+.cl-logo-glow::before {
+  content: ""; position: absolute; inset: -16px; border-radius: 999px; pointer-events: none;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c-learn) 42%, transparent) 0%, transparent 68%);
+  animation: cl-glow-pulse 2.8s ease-in-out infinite;
+}
+
+/* Staggered rise-in for stacked blocks (auth form, settings cards). */
+.cl-rise { animation: cl-fade-slide .28s cubic-bezier(.22,.8,.36,1) both; }
+.cl-d1 { animation-delay: .05s; } .cl-d2 { animation-delay: .10s; }
+.cl-d3 { animation-delay: .15s; } .cl-d4 { animation-delay: .20s; }
+
+/* Dashboard: direct children stagger fade-up on load. */
+.cl-stagger > * { animation: cl-fade-slide .28s cubic-bezier(.22,.8,.36,1) both; }
+.cl-stagger > *:nth-child(2) { animation-delay: .05s; }
+.cl-stagger > *:nth-child(3) { animation-delay: .10s; }
+.cl-stagger > *:nth-child(4) { animation-delay: .15s; }
+.cl-stagger > *:nth-child(5) { animation-delay: .20s; }
+.cl-stagger > *:nth-child(n+6) { animation-delay: .25s; }
+
+/* Sidebar / menu nav: active indicator slides in, icons lift on hover. */
+.cl-nav-item { position: relative; }
+.cl-nav-item::before {
+  content: ""; position: absolute; left: 0; top: 22%; height: 56%; width: 3px;
+  border-radius: 2px; background: #fff; opacity: 0; transform: translateX(-5px);
+  transition: opacity .2s ease, transform .2s cubic-bezier(.22,.8,.36,1);
+}
+.cl-nav-item[aria-current="page"]::before { opacity: .9; transform: translateX(0); }
+.cl-nav-item svg { transition: transform .18s ease; }
+.cl-nav-item:hover svg { transform: scale(1.14); }
+
+/* Small hover lift for standalone icon/link buttons. */
+.cl-lift { transition: transform .18s ease; }
+.cl-lift:hover { transform: translateY(-1px); }
+
+/* View transitions: every screen change gets one gentle entrance —
+   the shell keys this wrapper by view + open item, so navigating
+   anywhere (dashboard, lessons, labs, games, settings) cross-fades
+   instead of hard-cutting. Opacity/transform only, 240ms. */
+.cl-view-in { animation: cl-fade-slide .24s cubic-bezier(.22,.8,.36,1) both; }

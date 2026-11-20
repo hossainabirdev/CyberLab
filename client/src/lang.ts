@@ -72,6 +72,7 @@ export const NAV_BN: Record<string, string> = {
   careers: "ক্যারিয়ার সেন্টার",
   analytics: "অগ্রগতি ও বিশ্লেষণ",
   settings: "সেটিংস",
+  privacy: "গোপনীয়তা নীতি",
 };
 
 export const UI_BN: Record<string, string> = {
@@ -130,6 +131,10 @@ export const LESSON_BN_TITLES: Record<string, string> = {
   "l3-linux-essentials": "Linux-এর মূল বিষয়সমূহ",
   "l3-windows-admin": "Windows প্রশাসন ও Event Viewer",
   "l3-bash-scripting": "Bash Scripting দিয়ে কাজ স্বয়ংক্রিয় করা",
+  "l4-py-first": "একদম শূন্য থেকে Python: Program কীভাবে চলে, print ও মান",
+  "l4-py-conditions": "Python-এর সিদ্ধান্ত গভীরে: তুলনা, True/False ও if-এর ধারা",
+  "l4-py-files": "Python-এ File: খোলা, পড়া ও লেখা",
+  "l4-c-pointers": "সহজ করে C Pointer: Address ও ডাকবাক্সের উপমা",
   "l4-py-variables": "Python: Variable, String ও সংখ্যা",
   "l4-py-control": "Python: শর্ত ও Loop",
   "l4-py-functions": "Python: Function, List ও Dictionary",
