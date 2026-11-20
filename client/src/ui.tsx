@@ -276,7 +276,7 @@ export function Quiz({
           {T("Submit answers")}
         </button>
       ) : (
-        <div className={`rounded-md border p-3 ${pct >= PASS ? "border-emerald-800 bg-emerald-950/30" : "border-amber-800 bg-amber-950/30"}`} role="status">
+        <div className={`cl-result-pop rounded-md border p-3 ${pct >= PASS ? "border-emerald-800 bg-emerald-950/30" : "border-amber-800 bg-amber-950/30"}`} role="status">
           <p className="text-sm font-semibold text-[color:var(--text)]">
             {T("Score")}: {result.score}/{result.total} ({pct}%) — {pct >= PASS ? T("Passed.") : `${T("Below the pass mark of")} ${PASS}%.`}
           </p>

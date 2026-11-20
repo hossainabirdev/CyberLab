@@ -575,3 +575,60 @@ html { scroll-behavior: smooth; }
    anywhere (dashboard, lessons, labs, games, settings) cross-fades
    instead of hard-cutting. Opacity/transform only, 240ms. */
 .cl-view-in { animation: cl-fade-slide .24s cubic-bezier(.22,.8,.36,1) both; }
+
+/* ================================================================
+   V48 MORE MOTION — the v47 system extended to every surface the
+   learner touches: cards (lesson / lab / mission / CTF / project /
+   settings all render through .cl-card), quiz cards + options, the
+   terminal console, both playgrounds, dialogs, progress bars and
+   small result moments. Still the same discipline: transform /
+   opacity only, 150–300ms, one-shot entrances (nothing loops except
+   the login glow), all killed by the global reduced-motion rule,
+   no layout or paint-heavy work — smooth on a no-GPU Pentium.
+   ================================================================ */
+
+/* Cards rise in once when their view mounts; siblings in a grid
+   stagger by a few dozen ms so a board feels alive, not stamped. */
+@keyframes cl-card-in { from { opacity: 0; transform: translateY(10px) scale(.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.cl-card { animation: cl-card-in .26s cubic-bezier(.22,.8,.36,1) both; }
+.grid > .cl-card:nth-child(2), .cl-stagger > .cl-card:nth-child(2) { animation-delay: .04s; }
+.grid > .cl-card:nth-child(3), .cl-stagger > .cl-card:nth-child(3) { animation-delay: .08s; }
+.grid > .cl-card:nth-child(4), .cl-stagger > .cl-card:nth-child(4) { animation-delay: .12s; }
+.grid > .cl-card:nth-child(5), .cl-stagger > .cl-card:nth-child(5) { animation-delay: .16s; }
+.grid > .cl-card:nth-child(n+6), .cl-stagger > .cl-card:nth-child(n+6) { animation-delay: .20s; }
+
+/* Quiz & assessment: the question card settles in, options respond
+   to touch with a small press, and a fresh result pops once. */
+.cl-q-card { animation: cl-card-in .26s cubic-bezier(.22,.8,.36,1) both; }
+.cl-q-opt { transition: border-color .16s ease, background-color .16s ease, transform .15s ease; }
+.cl-q-opt:active { transform: scale(.99); }
+.cl-result-pop { animation: cl-pop .24s cubic-bezier(.22,.8,.36,1) both; }
+
+/* Terminal console + playground shells: a soft scale-in on mount,
+   so opening a bench feels like opening a tool, not a page swap. */
+@keyframes cl-tool-in { from { opacity: 0; transform: scale(.99) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.cl-console { animation: cl-tool-in .26s cubic-bezier(.22,.8,.36,1) both; }
+.cl-pg-in { animation: cl-tool-in .26s cubic-bezier(.22,.8,.36,1) both; }
+
+/* Dialogs / overlays (Privacy sheet, sheets, modals): fade + rise. */
+[role="dialog"] { animation: cl-fade-slide .24s cubic-bezier(.22,.8,.36,1) both; }
+
+/* Progress: bars grow from the left on mount (transform only — the
+   width transition above still handles later value changes), and
+   the XP/profile track fill gets the same treatment. */
+@keyframes cl-bar-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.cl-progress-anim { transform-origin: left center; animation: cl-bar-in .3s cubic-bezier(.22,.8,.36,1) both; }
+
+/* Run buttons breathe once when a run finishes: applied to output
+   panes via the live region's first child swap is not hookable in
+   CSS, so instead the output <pre> in playgrounds fades its new
+   content in through the pane's pop class hook below. */
+.cl-out-in { animation: cl-pop .2s cubic-bezier(.22,.8,.36,1) both; }
+
+/* Lesson task rows + lab steps: gentle stagger inside a lesson. */
+.cl-task-row { animation: cl-fade-slide .26s cubic-bezier(.22,.8,.36,1) both; }
+.cl-task-row:nth-child(2) { animation-delay: .05s; }
+.cl-task-row:nth-child(3) { animation-delay: .10s; }
+.cl-task-row:nth-child(4) { animation-delay: .15s; }
+.cl-task-row:nth-child(n+5) { animation-delay: .20s; }
+.cl-lab-step { animation: cl-fade-slide .26s cubic-bezier(.22,.8,.36,1) both; }

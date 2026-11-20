@@ -2,13 +2,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { tx as txI } from "./i18n";
 import { useStore } from "./ui";
 import { runPython, pyState, onPyState, type PyState } from "./pyodide";
+import { runJudge0, runPiston } from "./runner";
 
 // Code Playground — editable code, a real ▶ Run, and an honestly-labelled output pane.
 // JavaScript runs FOR REAL inside a sandboxed iframe (sandbox="allow-scripts",
 // NO allow-same-origin): the code cannot reach this app, its storage, or its
 // state, and has no network helpers from the app. Console output and errors
-// are posted back and shown verbatim. Every other language uses the SIMULATED
-// RUNNER / verified expected output — never claimed as real execution.
+// are posted back and shown verbatim. Python runs FOR REAL via Pyodide.
+// C, C++, Java, Bash, Kotlin, SQL and TypeScript run FOR REAL on the Judge0
+// execution service, and PowerShell is attempted on Piston (see runner.ts) —
+// real output and real compiler errors, edited code included. Only
+// non-executable samples (markup, config, text) keep the verified-output /
+// local-run mode, and they are labelled as such — never as a real run.
 
 export type PlayCode = { lang: string; title: string; code: string; output: string };
 
@@ -54,18 +59,26 @@ export function runJavaScriptSandboxed(code: string, done: (out: string, isError
 export type LangMeta = {
   name: string; version: string; mark: string; chip: string;
   family: "python" | "js" | "c" | "bash" | "powershell" | "sql" | "markup" | "generic";
-  runKind: "browser-js" | "browser-py" | "local";
+  runKind: "browser-js" | "browser-py" | "remote" | "local";
+  /** Judge0 base language name (runKind "remote", service "judge0"). */
+  remote?: string;
+  /** Which remote service executes it. PowerShell is not offered by
+   * Judge0, so it goes to Piston (currently whitelist-only — the run
+   * surfaces that refusal honestly instead of faking output). */
+  remoteService?: "judge0" | "piston";
 };
 export function langMeta(lang: string): LangMeta {
   const l = lang.toLowerCase();
   if (l.includes("python")) return { name: "Python", version: "3.11 · Pyodide", mark: "Py", chip: "var(--c-learn)", family: "python", runKind: "browser-py" };
   if (l.includes("javascript")) return { name: "JavaScript", version: "browser engine", mark: "JS", chip: "var(--c-mission)", family: "js", runKind: "browser-js" };
-  if (l.includes("typescript")) return { name: "TypeScript", version: "via Piston", mark: "TS", chip: "var(--c-soc)", family: "js", runKind: "local" };
-  if (l === "c" || l.includes("c (") || l.startsWith("c ")) return { name: "C", version: "gcc · local", mark: "C", chip: "var(--c-soc)", family: "c", runKind: "local" };
-  if (l.includes("c++")) return { name: "C++", version: "g++ · local", mark: "C+", chip: "var(--c-soc)", family: "c", runKind: "local" };
-  if (l.includes("bash") || l.includes("shell")) return { name: "Bash", version: "local shell", mark: ">_", chip: "var(--c-terminal)", family: "bash", runKind: "local" };
-  if (l.includes("powershell")) return { name: "PowerShell", version: "7 · local", mark: "PS", chip: "var(--c-soc)", family: "powershell", runKind: "local" };
-  if (l.includes("sql")) return { name: "SQL", version: "SQLite · local", mark: "SQL", chip: "var(--c-project)", family: "sql", runKind: "local" };
+  if (l.includes("typescript")) return { name: "TypeScript", version: "via Judge0", mark: "TS", chip: "var(--c-soc)", family: "js", runKind: "remote", remote: "TypeScript", remoteService: "judge0" };
+  if (l.includes("powershell")) return { name: "PowerShell", version: "7 · via Piston", mark: "PS", chip: "var(--c-soc)", family: "powershell", runKind: "remote", remote: "powershell", remoteService: "piston" };
+  if (l.includes("c++")) return { name: "C++", version: "g++ · via Judge0", mark: "C+", chip: "var(--c-soc)", family: "c", runKind: "remote", remote: "C++", remoteService: "judge0" };
+  if (l === "c" || l.includes("c (") || l.startsWith("c ")) return { name: "C", version: "gcc · via Judge0", mark: "C", chip: "var(--c-soc)", family: "c", runKind: "remote", remote: "C", remoteService: "judge0" };
+  if (l.includes("java") && !l.includes("javascript")) return { name: "Java", version: "JDK · via Judge0", mark: "Jv", chip: "var(--c-soc)", family: "c", runKind: "remote", remote: "Java", remoteService: "judge0" };
+  if (l.includes("kotlin")) return { name: "Kotlin", version: "via Judge0", mark: "Kt", chip: "var(--c-soc)", family: "c", runKind: "remote", remote: "Kotlin", remoteService: "judge0" };
+  if (l.includes("bash") || l.includes("shell")) return { name: "Bash", version: "bash · via Judge0", mark: ">_", chip: "var(--c-terminal)", family: "bash", runKind: "remote", remote: "Bash", remoteService: "judge0" };
+  if (l.includes("sql")) return { name: "SQL", version: "SQLite · via Judge0", mark: "SQL", chip: "var(--c-project)", family: "sql", runKind: "remote", remote: "SQL", remoteService: "judge0" };
   if (l.includes("html") || l.includes("xml") || l.includes("yaml")) return { name: lang, version: "markup", mark: "</>", chip: "var(--c-ctf)", family: "markup", runKind: "local" };
   return { name: lang, version: "", mark: "{}", chip: "var(--accent)", family: "generic", runKind: "local" };
 }
@@ -99,7 +112,7 @@ export function highlightCode(code: string, family: LangMeta["family"]): string 
 
 export function LangBadge({ lang, showRun = true }: { lang: string; showRun?: boolean }) {
   const m = langMeta(lang);
-  const runLabel = m.runKind === "browser-js" ? "REAL · runs in your browser" : m.runKind === "browser-py" ? "REAL · runs in your browser (Pyodide)" : "SIMULATED · expected output only — run it for real locally";
+  const runLabel = m.runKind === "browser-js" ? "REAL · runs in your browser" : m.runKind === "browser-py" ? "REAL · runs in your browser (Pyodide)" : m.runKind === "remote" ? (m.remoteService === "piston" ? "REMOTE · runs on Piston" : "REAL · runs on Judge0") : "SIMULATED · expected output only — run it for real locally";
   return (
     <span className="inline-flex flex-wrap items-center gap-1.5" aria-label={`Language: ${m.name}${m.version ? `, ${m.version}` : ""}`}>
       <span aria-hidden="true" className="flex h-6 min-w-6 items-center justify-center rounded-md px-1 font-mono text-[11px] font-black text-white" style={{ background: m.chip }}>{m.mark}</span>
@@ -115,6 +128,9 @@ export function localCommand(lang: string): string {
   if (l.includes("python")) return "Save as the filename in the lesson (e.g. log_parser.py), then run:  python3 log_parser.py";
   if (l.includes("javascript") || l.includes("html")) return "Paste into the browser DevTools Console (F12), or save as script.js and run:  node script.js";
   if (l === "c" || l.includes("c (")) return "Save as main.c, then:  gcc -Wall -Wextra -o lab main.c && ./lab";
+  if (l.includes("c++")) return "Save as main.cpp, then:  g++ -Wall -Wextra -o lab main.cpp && ./lab";
+  if (l.includes("java") && !l.includes("javascript")) return "Save the file with the exact class name from the title (e.g. Main.java), then:  javac Main.java && java Main";
+  if (l.includes("kotlin")) return "Save as Main.kt, then:  kotlinc Main.kt -include-runtime -d app.jar && java -jar app.jar";
   if (l.includes("bash")) return "Save as script.sh, then:  chmod +x script.sh && ./script.sh   (in your own lab folder only)";
   if (l.includes("powershell")) return "Open PowerShell in your lab folder and run the block, or save as script.ps1 and run:  .\\script.ps1";
   if (l.includes("sql")) return "Run it against your local training database only (e.g. the Level 5 demo app's SQLite/MySQL lab instance).";
@@ -152,6 +168,7 @@ export function CodePlayground({ code, compact = false, mini = false, whyRun, ou
   const meta = langMeta(code.lang);
   const isJs = meta.runKind === "browser-js";
   const isPy = meta.runKind === "browser-py";
+  const isRemote = meta.runKind === "remote";
   const edited = src !== code.code;
   const lineCount = useMemo(() => src.split("\n").length, [src]);
   const highlighted = useMemo(() => highlightCode(src, meta.family), [src, meta.family]);
@@ -168,9 +185,11 @@ export function CodePlayground({ code, compact = false, mini = false, whyRun, ou
     ? "REAL · browser run (JavaScript)"
     : isPy
       ? py === "failed" ? "Python engine could not load" : py === "ready" || py === "loading" ? "REAL · browser run (Python · Pyodide)" : "Python · Pyodide"
-      : edited
-        ? "NOT RUN — your edited code was not executed here (run it locally, below)"
-        : "SIMULATED · verified expected output for the original lesson code — not a live run";
+      : isRemote
+        ? meta.remoteService === "piston" ? "REMOTE · runs on Piston" : "REAL · remote run (Judge0)"
+        : edited
+          ? "NOT RUN — your edited code was not executed here (run it locally, below)"
+          : "SIMULATED · verified expected output for the original lesson code — not a live run";
   const fieldId = `pg-${code.title.replace(/\W+/g, "-")}-${code.lang.replace(/\W+/g, "-")}`;
 
   const run = () => {
@@ -184,6 +203,21 @@ export function CodePlayground({ code, compact = false, mini = false, whyRun, ou
     } else if (isPy) {
       setRunning(true); setOutput(py === "ready" ? "Running Python…" : "Loading the Python engine (Pyodide, first time only)…");
       void runPython(src).then((r) => {
+        if (!alive.current) return;
+        setRunning(false); setOutput(r.out); setIsError(r.isError); setRanAt(new Date().toLocaleTimeString());
+      });
+    } else if (isRemote) {
+      // REAL remote run — the learner's edited code is sent to the
+      // execution service (Judge0, or Piston for PowerShell) and the
+      // real output / real compiler error comes back. If the service
+      // is unreachable or refuses, runner.ts returns the honest error
+      // + local command — never the preset lesson output.
+      setRunning(true); setOutput(meta.remoteService === "piston" ? "Running on Piston…" : "Running on Judge0…");
+      const hint = localCommand(code.lang);
+      const p = meta.remoteService === "piston"
+        ? runPiston(meta.remote ?? "powershell", src, hint)
+        : runJudge0(meta.remote ?? meta.name, src, hint);
+      void p.then((r) => {
         if (!alive.current) return;
         setRunning(false); setOutput(r.out); setIsError(r.isError); setRanAt(new Date().toLocaleTimeString());
       });
@@ -202,7 +236,7 @@ export function CodePlayground({ code, compact = false, mini = false, whyRun, ou
 
   return (
     <>
-    <section aria-label={`Code Playground — ${code.title}`} className="overflow-hidden rounded-xl border-2 border-cyan-800/70 shadow-[0_0_0_1px_rgba(56,189,248,0.08)]">
+    <section aria-label={`Code Playground — ${code.title}`} className="cl-pg-in overflow-hidden rounded-xl border-2 border-cyan-800/70 shadow-[0_0_0_1px_rgba(56,189,248,0.08)]">
       <div className={`flex flex-wrap items-center gap-2 bg-gradient-to-r from-sky-950 via-[color:var(--surface2)] to-emerald-950 px-3 ${mini ? "py-1.5" : "py-2.5"}`}>
         <span className="text-base" aria-hidden="true">🧪</span>
         <h4 className="text-sm font-bold text-[color:var(--text)]">{mini ? (txI(store.profile.lang, "Compiler — run the code", "Compiler — code চালাও")) : "Code Playground — edit it, run it, see the output"}</h4>
@@ -247,7 +281,7 @@ export function CodePlayground({ code, compact = false, mini = false, whyRun, ou
           <span>OUTPUT</span>
           <span className={`rounded-full border px-2 py-0.5 ${isError && output !== null ? "border-red-800 text-red-300" : "border-emerald-800 text-emerald-300"}`}>{output === null ? paneLabel : isError ? (isPy ? "REAL · browser run (Python) — error" : isJs ? "REAL · browser run — error" : paneLabel) : paneLabel}</span>
         </p>
-        <pre className={`${mini ? "max-h-[170px]" : "max-h-[320px]"} overflow-auto whitespace-pre-wrap px-3 pb-3 pt-1.5 font-mono text-[12.5px] leading-relaxed text-[#c9f5dd]`}>{output ?? (mini ? "Press ▶ Run — the output appears here." : "No output yet — press ▶ Run and the result appears here, directly under the code.")}</pre>
+        <pre key={ranAt || "idle"} className={`cl-out-in ${mini ? "max-h-[170px]" : "max-h-[320px]"} overflow-auto whitespace-pre-wrap px-3 pb-3 pt-1.5 font-mono text-[12.5px] leading-relaxed text-[#c9f5dd]`}>{output ?? (mini ? "Press ▶ Run — the output appears here." : "No output yet — press ▶ Run and the result appears here, directly under the code.")}</pre>
         {outputMeaning ? <p className="border-t border-emerald-900/60 px-3 py-2 text-xs leading-relaxed text-[#a7f3d0]"><span className="font-bold text-white">{txI(store.profile.lang, "What this output means: ", "এই output-এর মানে: ")}</span>{outputMeaning}</p> : null}
       </div>
       {mini ? (
@@ -259,6 +293,7 @@ export function CodePlayground({ code, compact = false, mini = false, whyRun, ou
         <strong className="text-[color:var(--text)]">Run in your own lab:</strong> {localCommand(code.lang)}
         {isJs ? <> · JavaScript really executes in a sandboxed frame with no access to this app — your edited code included, errors included.</>
           : isPy ? <> · Python really executes in your browser via Pyodide (CPython in WebAssembly) — your code never leaves this device. If the engine cannot load, you get an honest message here, never a fake output.</>
+          : isRemote ? <> · {meta.name} really executes on the {meta.remoteService === "piston" ? "Piston" : "Judge0"} execution service — only your code is sent there, and the real output (or the real compiler error) comes back, for your edited code too. If the service is unreachable, you get an honest error here, never a fake output. Never put passwords or secrets in code you run remotely.</>
           : edited ? <> · You edited this code: this browser cannot run {meta.name}, so your version was NOT executed here and its preset output is not shown as if it were yours — use the local command above for your real output.</>
           : <> · This browser cannot execute {meta.name} natively, so the pane shows the verified expected output for the exact lesson code — edit the code and the pane will honestly switch to local-run guidance instead.</>}
       </p>

@@ -5,205 +5,23 @@
 //     JS iframe / Pyodide CPython). Output is the real output of the edited
 //     code, errors included.
 //   HTML → live preview in a sandboxed frame in the browser.
-//   PowerShell / Bash / CMD samples → a SIMULATED terminal: the browser
-//     cannot touch the learner's real PC, so commands print realistic
-//     simulated output, the pane is labelled SIMULATED at all times, and a
-//     "try on your own PC" step below carries the exact copy-paste commands.
-//     Simulated output is never presented as a real run.
-//   Any other language (C, SQL, …) → the CodePlayground's honest mode:
-//     verified expected output for the original code, local-run guidance
-//     for edited code. Nothing is faked.
+//   C, C++, Java, Bash, Kotlin, SQL, TypeScript → REAL run on the Judge0
+//     execution service via CodePlayground (see runner.ts) — the whole
+//     sample script runs as one real program, errors included. (v48: Bash
+//     samples used to go through a SIMULATED terminal here; they really
+//     execute now. The separate Cyber Terminal view stays a labelled
+//     SIMULATED practice terminal — it is not a code runner.)
+//   PowerShell → attempted REAL run on Piston via CodePlayground; Piston's
+//     public API is currently whitelist-only, so until that changes the
+//     learner sees Piston's own refusal + the exact local command — never
+//     a simulated output dressed up as a run.
+//   Non-executable samples (markup, config, text) → the CodePlayground's
+//     honest mode: verified expected output for the original code,
+//     local-run guidance for edited code. Nothing is faked.
 
-import { useEffect, useRef, useState } from "react";
-import { tx as txI } from "./i18n";
-import { getState } from "./store";
-import { CodePlayground, langMeta, localCommand, type PlayCode } from "./Playground";
+import { useState } from "react";
+import { CodePlayground, langMeta, type PlayCode } from "./Playground";
 import { FormatSample, isSampleContent } from "./SampleBlock";
-import { runLinuxSim, runWindowsSim } from "./Terminal";
-
-/** Runnable lines of a sample block: no blanks, no comment-only lines, no
- * bare shell keywords; inline trailing comments stripped for shells. */
-export function sampleCommands(code: PlayCode): string[] {
-  const shellish = /bash|powershell|shell|cmd/i.test(code.lang);
-  const out: string[] = [];
-  for (const raw of code.code.split("\n")) {
-    let line = raw.trim();
-    if (!line) continue;
-    if (line.startsWith("#") || line.startsWith("//") || line.startsWith("--")) continue;
-    if (shellish) {
-      const hash = line.indexOf(" #");
-      if (hash > 0 && !line.slice(0, hash).includes('"') && !line.slice(0, hash).includes("'")) line = line.slice(0, hash).trim();
-    }
-    if (/^(then|fi|do|done|else|elif|\{|\}|esac)$/i.test(line)) continue;
-    if (line.length < 2) continue;
-    out.push(line);
-    if (out.length >= 6) break;
-  }
-  return out;
-}
-
-const norm = (s: string) => s.trim().replace(/\s+/g, " ").toLowerCase();
-
-/* PowerShell inspection cmdlets the generic simulator does not know, with
- * outputs matching the SIMULATED lab machine profile used across CyberLab
- * (Windows 11 Pro 23H2 · 8 GB RAM · GPT · Secure Boot OFF · TPM present). */
-const PS_EXTRAS: { head: string; out: string }[] = [
-  { head: "get-computerinfo", out: "WindowsProductName    : Windows 11 Pro\nOsVersion             : 10.0.22631 (23H2)\nCsTotalPhysicalMemory : 8589934592" },
-  { head: "get-disk", out: "Number  FriendlyName   PartitionStyle   Size\n------  ------------   --------------   ----\n0       Internal SSD   GPT              476.9 GB" },
-  { head: "confirm-securebootuefi", out: "False" },
-  { head: "get-tpm", out: "TpmPresent : True\nTpmReady   : True" },
-];
-
-function SimTerminal({ code, isBn, onRan }: { code: PlayCode; isBn: boolean; onRan?: () => void }) {
-  const meta = langMeta(code.lang);
-  const mode: "linux" | "cmd" | "ps" = meta.family === "powershell" || /powershell/i.test(code.lang) ? "ps" : meta.family === "bash" || /bash|shell/i.test(code.lang) ? "linux" : "cmd";
-  // Display name follows the resolved mode, not langMeta: "powershell"
-  // contains "shell", so langMeta mislabels pure PowerShell blocks as Bash.
-  const shellName = mode === "ps" ? "PowerShell" : mode === "linux" ? "Bash" : "CMD";
-  const samples = sampleCommands(code);
-  const initialLines = (): string[] => [
-    isBn
-      ? `SIMULATED ${shellName} terminal — কোনো command-ই তোমার আসল PC-তে চলে না।`
-      : `SIMULATED ${shellName} terminal — no command here runs on your real PC.`,
-    isBn
-      ? "নিচের sample command গুলোর একটি লেখো (বা chip-এ tap করো), তারপর Enter / Run চাপো।"
-      : "Type one of the sample commands below (or tap a chip), then press Enter / Run.",
-  ];
-  const [cwd, setCwd] = useState("/home/learner");
-  const [lines, setLines] = useState<string[]>(initialLines);
-  const [input, setInput] = useState("");
-  const [history, setHistory] = useState<string[]>([]);
-  const [hIdx, setHIdx] = useState(-1);
-  const [copied, setCopied] = useState(false);
-  const [copiedMine, setCopiedMine] = useState(false);
-  // EDITOR ISOLATION (bug fix, 15 Nov 2026 — same rule as CodePlayground):
-  // if this mounted terminal is ever handed a DIFFERENT sample, its lines,
-  // input, history and cwd belong to the old sample and must reset — typed
-  // or deleted text from one place must never appear in another.
-  const codeSig = `${code.lang}\n${code.title}\n${code.code}`;
-  const [seenSig, setSeenSig] = useState(codeSig);
-  if (seenSig !== codeSig) {
-    setSeenSig(codeSig);
-    setCwd("/home/learner");
-    setLines(initialLines());
-    setInput("");
-    setHistory([]);
-    setHIdx(-1);
-    setCopied(false);
-    setCopiedMine(false);
-  }
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }); }, [lines]);
-
-  const prompt = mode === "linux" ? `learner@cyberlab-vm:${cwd.replace("/home/learner", "~")}$` : mode === "cmd" ? "C:\\Users\\learner>" : "PS C:\\Users\\learner>";
-
-  const resolve = (rawCmd: string): string => {
-    const cmd = rawCmd.trim();
-    const n = norm(cmd);
-    if (!cmd) return "";
-    // 1) Lab inspection cmdlets with profile-accurate simulated output.
-    if (mode === "ps") {
-      for (const ex of PS_EXTRAS) if (n.startsWith(ex.head)) return ex.out;
-    }
-    // 2) Exact sample line → the sample's verified expected output.
-    const exact = samples.find((sc) => norm(sc) === n);
-    if (exact) return `${txI(getState().profile.lang, "(simulated) verified output for this lesson's sample:", "(simulated) sample-টির verified output:")}\n${code.output}`;
-    // 3) The shared simulated interpreter (same one as the Cyber Terminal).
-    const generic = mode === "linux" ? runLinuxSim(cmd, cwd, setCwd) : runWindowsSim(cmd, mode);
-    const notFound = generic.includes("command not found") || generic.includes("is not recognized as an internal or external command");
-    if (!notFound) return generic;
-    // 4) Same command family as a sample line → the sample's verified output.
-    const firstTok = n.split(" ")[0] ?? "";
-    if (firstTok && samples.some((sc) => norm(sc).split(" ")[0] === firstTok)) {
-      return `${isBn ? "(simulated) এই command sample-এর অংশ — sample-টির verified output:" : "(simulated) that command is part of this lesson's sample — its verified output:"}\n${code.output}`;
-    }
-    // 5) Realistic not-found, plus the way back to the sample.
-    return `${generic}${samples.length ? (isBn ? `\nএই lab-এর sample command: ${samples.join(" · ")}` : `\nSample commands in this lab: ${samples.join(" · ")}`) : ""}`;
-  };
-
-  const run = (rawCmd: string) => {
-    const cmd = rawCmd.trim();
-    if (!cmd) return;
-    onRan?.();
-    const out = resolve(cmd);
-    if (out === "__CLEAR__") setLines([]);
-    else setLines((l) => [...l, `${prompt} ${cmd}`, ...(out ? out.split("\n") : [])]);
-    setHistory((h) => [cmd, ...h].slice(0, 30));
-    setHIdx(-1);
-  };
-
-  const runAll = () => {
-    for (const sc of samples) run(sc);
-  };
-
-  return (
-    <div>
-      <div className="overflow-hidden rounded-xl border-2 border-slate-600 bg-[#07090d] shadow-lg">
-        <div className="flex items-center gap-1.5 bg-[#111827] px-3 py-2" aria-hidden="true">
-          <span className="h-3 w-3 rounded-full bg-red-500" /><span className="h-3 w-3 rounded-full bg-amber-400" /><span className="h-3 w-3 rounded-full bg-emerald-500" />
-          <span className="ml-2 font-mono text-[11px] text-slate-300">{mode === "linux" ? "bash" : mode === "cmd" ? "cmd.exe" : "PowerShell"} · {code.title} · SIMULATED</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 border-b border-slate-700 bg-[#0b1220] px-3 py-2">
-          <span className="rounded-full border border-amber-700 px-2 py-0.5 text-[11px] font-bold text-amber-300">{isBn ? "SIMULATED — আসল shell নয়" : "SIMULATED — not a real shell"}</span>
-          {samples.length ? (
-            <button type="button" onClick={runAll} className="ml-auto min-h-[44px] rounded-lg bg-emerald-600 px-3.5 py-2 text-[13px] font-bold text-white" aria-label={isBn ? "সব sample command একে একে চালাও" : "Run all sample commands in order"}>
-              ▶ {isBn ? "Sample command গুলো চালাও" : "Run the sample commands"}
-            </button>
-          ) : null}
-        </div>
-        {samples.length ? (
-          <div className="flex flex-wrap gap-1.5 border-b border-slate-700 bg-[#0b1220] px-3 py-2" aria-label={isBn ? "Sample command সমূহ" : "Sample commands"}>
-            {samples.map((sc) => (
-              <button key={sc} type="button" onClick={() => run(sc)} aria-label={`${isBn ? "এই command চালাও" : "Run this command"}: ${sc}`}
-                className="min-h-[44px] max-w-full truncate rounded-full border border-slate-600 px-3 py-1.5 font-mono text-[12px] text-sky-200">{sc}</button>
-            ))}
-          </div>
-        ) : null}
-        <div ref={scrollRef} className="h-[240px] overflow-y-auto p-3 font-mono text-[12.5px] leading-relaxed text-[#c9d6e3] sm:h-[280px]" onClick={() => inputRef.current?.focus()}>
-          {lines.map((l, i) => <div key={i} className="whitespace-pre-wrap break-words">{l}</div>)}
-          <form className="mt-1 flex items-center gap-2" onSubmit={(e) => { e.preventDefault(); run(input); setInput(""); }}>
-            <span className="shrink-0 text-sky-300">{prompt}</span>
-            <input ref={inputRef} value={input} aria-label={isBn ? "Simulated terminal command লেখো" : "Type a simulated terminal command"}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowUp") { e.preventDefault(); const nx = Math.min(hIdx + 1, history.length - 1); if (history[nx]) { setHIdx(nx); setInput(history[nx]!); } }
-                if (e.key === "ArrowDown") { e.preventDefault(); const nx = hIdx - 1; setHIdx(Math.max(nx, -1)); setInput(nx >= 0 ? (history[nx] ?? "") : ""); }
-              }}
-              className="min-h-[44px] w-full min-w-0 flex-1 bg-transparent font-mono text-base text-[#e6edf3] outline-none" autoComplete="off" spellCheck={false} />
-            <button type="submit" className="min-h-[44px] shrink-0 rounded-lg bg-[color:var(--accent2)] px-3.5 py-2 text-[13px] font-bold text-white" aria-label={isBn ? "Command চালাও" : "Run command"}>Run</button>
-          </form>
-        </div>
-      </div>
-      {/* Try on your own PC — the step that makes it real */}
-      <div className="cl-callout cl-callout-note mt-3 text-sm leading-relaxed text-[color:var(--dim)]">
-        <p className="cl-callout-title">{isBn ? "ধাপ · এবার নিজের আসল PC-তে try করো" : "Step · Now try it on your own real PC"}</p>
-        <p className="mt-1">{isBn
-          ? "Browser তোমার PC ছুঁতে পারে না — তাই আসল অনুশীলনটা নিজের machine-এ: নিজের PC-তে (বা নিজের VM / emulator-এ) terminal খুলে ঠিক এই command গুলো paste করে চালাও, আর নিজের আসল output-টা simulated output-এর সঙ্গে মেলাও। শুধু নিজের machine-এই — অন্য কারো সিস্টেমে কখনো নয়।"
-          : "The browser cannot touch your PC — so the real practice happens on your machine: open a terminal on your own PC (or your own VM / emulator), paste these exact commands, run them, and compare your real output with the simulated one above. Your own machine only — never anyone else's system."}</p>
-        <pre className="mono mt-2 max-h-[180px] overflow-auto whitespace-pre-wrap rounded-md border border-[color:var(--border)] bg-[color:var(--surface2)] px-2.5 py-2 text-[12.5px] text-[color:var(--text)]">{code.code}</pre>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <button type="button" aria-label={isBn ? "নিজের PC-র জন্য command গুলো copy করো" : "Copy the commands for your own PC"}
-            onClick={() => { void navigator.clipboard?.writeText(code.code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1400); }); }}
-            className="min-h-[44px] rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3.5 py-2 text-sm font-semibold text-[color:var(--text)]">
-            {copied ? (isBn ? "Copy হয়েছে ✓" : "Copied ✓") : (isBn ? "Command গুলো copy করো" : "Copy the commands")}
-          </button>
-          <span className="text-[13px]">{localCommand(code.lang)}</span>
-        </div>
-        {history.length ? (
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <button type="button" aria-label={isBn ? "নিজের লেখা command গুলো copy করো" : "Copy the commands you typed"}
-              onClick={() => { void navigator.clipboard?.writeText([...history].reverse().join("\n")).then(() => { setCopiedMine(true); setTimeout(() => setCopiedMine(false), 1400); }); }}
-              className="min-h-[44px] rounded-lg border border-[color:var(--border)] bg-[color:var(--surface)] px-3.5 py-2 text-sm font-semibold text-[color:var(--text)]">
-              {copiedMine ? (isBn ? "Copy হয়েছে ✓" : "Copied ✓") : (isBn ? "আমার লেখা command গুলো copy করো" : "Copy my typed commands")}
-            </button>
-            <span className="text-[13px]">{isBn ? `${history.length}টি command তুমি নিজে লিখে চালিয়েছ` : `${history.length} command(s) you typed and ran yourself`}</span>
-          </div>
-        ) : null}
-      </div>
-    </div>
-  );
-}
 
 function HtmlTryBox({ code, isBn, onRan }: { code: PlayCode; isBn: boolean; onRan?: () => void }) {
   const [src, setSrc] = useState(code.code);
@@ -248,8 +66,8 @@ function HtmlTryBox({ code, isBn, onRan }: { code: PlayCode; isBn: boolean; onRa
 }
 
 /** The in-lab try box. Picks the honest runner for the sample's language:
- * real browser run (JS/Python), live preview (HTML), simulated terminal
- * (PowerShell/Bash/CMD) + own-PC step, or the playground's verified-output
+ * real browser run (JS/Python), live preview (HTML), real remote run
+ * (C/Java/Bash/… on Judge0, PowerShell attempted on Piston), or the playground's verified-output
  * mode for the remaining languages. Renders nothing when there is no code. */
 export function LabTryBox({ code, isBn, onRan }: { code: PlayCode; isBn: boolean; onRan?: () => void }) {
   const [sampleCopied, setSampleCopied] = useState(false);
@@ -279,23 +97,30 @@ export function LabTryBox({ code, isBn, onRan }: { code: PlayCode; isBn: boolean
   const isShell = meta.family === "bash" || meta.family === "powershell" || /(^|\b)cmd\b/i.test(code.lang);
   const isHtml = meta.family === "markup" && /html/i.test(code.lang);
   const kindChip = isShell
-    ? (isBn ? "SIMULATED TERMINAL · + নিজের PC-তে করার ধাপ" : "SIMULATED TERMINAL · + try-on-your-own-PC step")
+    ? (meta.family === "powershell"
+        ? (isBn ? "REMOTE RUN · PowerShell Piston-এ চলে" : "REMOTE RUN · PowerShell runs on Piston")
+        : (isBn ? "আসল RUN · Bash Judge0-তে চলে" : "REAL RUN · Bash runs on Judge0"))
     : isHtml
       ? (isBn ? "LIVE PREVIEW · browser-এই চলে" : "LIVE PREVIEW · runs in your browser")
       : meta.runKind === "browser-js"
         ? (isBn ? "আসল RUN · JavaScript তোমার browser-এ চলে" : "REAL RUN · JavaScript runs in your browser")
         : meta.runKind === "browser-py"
           ? (isBn ? "আসল RUN · Python তোমার browser-এ চলে (Pyodide)" : "REAL RUN · Python runs in your browser (Pyodide)")
-          : (isBn ? "EDIT + RUN · verified output + নিজের PC-তে চালানোর command" : "EDIT + RUN · verified output + local-run command");
+          : meta.runKind === "remote"
+            ? (isBn ? "আসল RUN · Judge0-তে চলে" : "REAL RUN · runs on Judge0")
+            : (isBn ? "EDIT + RUN · verified output + নিজের PC-তে চালানোর command" : "EDIT + RUN · verified output + local-run command");
   const instruction = isShell
-    ? (isBn ? "পাশের sample-টা দেখো, তারপর try area-তে নিজে command লিখে try করো — output simulated, কারণ browser তোমার আসল PC-তে কিছু চালাতে পারে না। Try area-র নিচে নিজের PC-তে আসলেই করার ধাপ দেওয়া আছে।"
-      : "Look at the sample beside this, then type the commands yourself in the try area — the output is simulated, because a browser cannot run anything on your real PC. The step under the try area takes the same commands to your own PC for real.")
+    ? (isBn ? "পাশের sample-টাই format — try area-তে পুরো script-টা edit করে Run চাপো — script-টা সত্যিই execution service-এ একটা আসল program হিসেবে চলবে আর আসল output নিচে আসবে, error হলেও আসল error-ই দেখাবে। একটা-একটা command টাইপ করে practice করতে চাইলে Cyber Terminal (SIMULATED বলে label করা) আর নিজের PC-র terminal আছে।"
+      : "The sample beside this is the exact format to follow: edit the whole script in the try area and press Run — the script really executes as one real program on the execution service and the real output appears below, real errors included. For typing commands one by one, use the Cyber Terminal (labelled SIMULATED) or a terminal on your own PC.")
     : isHtml
       ? (isBn ? "পাশের sample-টা দেখে try area-তে edit করে Run চাপো — তোমার বদলানো HTML-ই browser-এ render হবে, আসল preview সহ।"
         : "Use the sample beside this as your starting format: edit it in the try area and press Run — your edited HTML renders right here in the browser, a real preview.")
       : meta.runKind === "browser-js" || meta.runKind === "browser-py"
         ? (isBn ? "পাশের sample-টাই format — try area-তে edit করো, Run চাপো — code সত্যিই তোমার browser-এ চলবে আর আসল output নিচে আসবে, error হলেও error-ই দেখাবে।"
           : "The sample beside this is the exact format to follow: edit it in the try area, press Run — the code really executes in your browser and the real output appears below, errors included.")
+        : meta.runKind === "remote"
+          ? (isBn ? "পাশের sample-টাই format — try area-তে edit করে Run চাপো — code সত্যিই execution service-এ চলবে আর আসল output নিচে আসবে, compiler error হলেও আসল error-ই দেখাবে।"
+            : "The sample beside this is the exact format to follow: edit it in the try area and press Run — the code really executes on the execution service and the real output appears below, compiler errors included.")
         : (isBn ? "পাশের sample-টাই format — try area-তে edit করে Run চাপো — এই ভাষা browser-এ চলে না, তাই আসল code-এর verified output দেখানো হয়; তোমার বদলানো version নিজের PC-তে চালানোর সঠিক command try area-র নিচে দেওয়া থাকে।"
           : "The sample beside this is the exact format to follow: edit it in the try area and press Run — this language cannot execute in a browser, so you get the verified output for the original code, and the exact local command for running your edited version on your own PC.");
   const sampleLines = code.code.replace(/\n+$/, "").split("\n");
@@ -332,8 +157,7 @@ export function LabTryBox({ code, isBn, onRan }: { code: PlayCode; isBn: boolean
           ) : null}
         </div>
         <div className="min-w-0">
-          {isShell ? <SimTerminal code={code} isBn={isBn} onRan={onRan} />
-            : isHtml ? <HtmlTryBox code={code} isBn={isBn} onRan={onRan} />
+          {isHtml ? <HtmlTryBox code={code} isBn={isBn} onRan={onRan} />
             : <CodePlayground code={code} compact onRan={onRan} />}
         </div>
       </div>
