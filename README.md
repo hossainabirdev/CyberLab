@@ -1,43 +1,40 @@
+![CyberLab](assets/banner.png)
+
 # CyberLab
 
-**[CyberLab — Live Application](https://cyberlab27.pages.dev)**
+[![Live App](https://img.shields.io/badge/Live%20App-cyberlab27.pages.dev-22D3EE)](https://cyberlab27.pages.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An interactive cybersecurity and computer science learning environment featuring structured lessons, progressive learning levels, practical labs, missions, and Capture The Flag challenges.
+An interactive cybersecurity and computer science learning environment — **333 lessons, 32 levels, labs, missions and CTF challenges.**
+
+**[Try the live app →](https://cyberlab27.pages.dev)**
+
+---
+
+## What is CyberLab?
 
 CyberLab is a complete full-stack web application: a progressive web app (PWA) frontend hosted on Cloudflare Pages, a Cloudflare Workers API for accounts and progress sync, and a Cloudflare D1 database. This repository contains everything needed to run and deploy it — clone it, install, build, and deploy (see [SETUP.md](SETUP.md)).
-
----
-
-## About Me
-
-**Md Abir Hossain** — Aspiring Software Engineer.
-
-My primary focus is **Software Engineering**. My additional strengths and interests include AI, Cybersecurity, Cloud, and Creative Production.
-
-### Education
-
-| Qualification | Institution | Year |
-| --- | --- | --- |
-| BSc in Computer Science & Engineering | Uttara University, Dhaka, Bangladesh | 2026 – Present |
-| HSC | B.A.F. Shaheen College, Kurmitola | 2025 |
-| SSC | B H Khan School and College | 2023 |
-
-### English Proficiency
-
-- **PTE Academic — Overall Score: 65** (2026)
-
----
 
 ## Features
 
 - **333 Learning Lessons** — textbook-style lessons (topic → main point → definitions → worked example → exercises), each with a six-part "why" explanation panel
-- **32 Progressive Levels** — Levels 0–31, from orientation and diagnostics through hacking tracks to CSE gap subjects (Data Structures, DBMS, Theory of Computation, Compiler Design, AI/ML basics), with strict serial unlocking (quiz ≥ 70% + practical per lesson)
+- **32 Progressive Levels** — Levels 0–31, from orientation and diagnostics through hacking tracks to CSE gap subjects (Data Structures, DBMS, Theory of Computation, Compiler Design, AI/ML basics)
 - **Interactive Practical Labs** — hands-on labs with a live try-area beside the instructions; code genuinely runs (JavaScript and Python in the browser, other languages through a remote runner)
 - **Security Missions and CTF Challenges** — case-file missions with hands-on practicals, and Capture The Flag challenges whose flags are validated server-side
 - **Accounts & Progress Sync** — sign up / sign in, PBKDF2-hashed passwords, session tokens, XP, streaks and progress saved per account on any device
 - **Password Reset by Email** — 6-digit code flow via the Brevo API (code stored only as a hash, 15-minute expiry, single use)
 - **Six Languages** — English, Bangla, Spanish, German, Chinese and Hindi from a single language dropdown
 - **PWA** — installable, standalone, with an offline app shell
+
+## How it works
+
+1. **Learn** — open a lesson and read it like a textbook chapter, with a live terminal / code playground beside the content.
+2. **Practice** — do the lab, mission or terminal exercise for that lesson.
+3. **Prove it** — pass the lesson quiz (≥ 70%) and the practical to complete the lesson. Lessons unlock strictly in order — opening or scrolling a lesson gives no completion or XP.
+4. **Advance** — a checkpoint follows every 3–4 lessons; each level ends with a Level Final (quiz + practical/mission + short written task). Passing it unlocks the next level.
+5. **Exception** — Level 4 Lesson 1 is a second open entry point; its final unlocks Level 5 onward.
+
+---
 
 ## Technology Stack
 
@@ -71,14 +68,15 @@ My primary focus is **Software Engineering**. My additional strengths and intere
 cyberlab/
 ├── README.md               ← this file
 ├── SETUP.md                ← full setup & deploy guide, step by step
-├── PUSH_GUIDE.md           ← how this repo was pushed to GitHub, step by step
 ├── .env.example            ← env variable names with empty placeholders
 │                             (the real .env is never committed — see SETUP.md)
+├── assets/
+│   └── banner.png          ← README hero banner
 ├── package.json            ← scripts: typecheck / build / build:pages
 ├── client/
 │   ├── index.html          ← app entry page
 │   ├── build.mjs           ← production build (bundle + stamped service worker)
-│   ├── public/             ← PWA manifest, icons, service worker source
+│   ├── public/             ← PWA manifest, icons, service worker source, og-image.png (link preview)
 │   └── src/                ← the full application source (lessons, labs,
 │                             missions, CTF, terminal, playgrounds, i18n)
 ├── cloudflare/
@@ -144,6 +142,24 @@ Exploratory interests I am building towards:
 - Industrial Network Security
 - SWaT Dataset
 - AI/ML Applications in Cybersecurity
+
+## About Me
+
+**Md Abir Hossain** — Aspiring Software Engineer.
+
+My primary focus is **Software Engineering**. My additional strengths and interests include AI, Cybersecurity, Cloud, and Creative Production.
+
+### Education
+
+| Qualification | Institution | Year |
+| --- | --- | --- |
+| BSc in Computer Science & Engineering | Uttara University, Dhaka, Bangladesh | 2026 – Present |
+| HSC | B.A.F. Shaheen College, Kurmitola | 2025 |
+| SSC | B H Khan School and College | 2023 |
+
+### English Proficiency
+
+- **PTE Academic — Overall Score: 65** (2026)
 
 ## Contact
 
