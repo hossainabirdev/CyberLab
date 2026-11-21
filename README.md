@@ -5,7 +5,7 @@
 [![Live App](https://img.shields.io/badge/Live%20App-cyberlab27.pages.dev-22D3EE)](https://cyberlab27.pages.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An interactive cybersecurity and computer science learning environment — **333 lessons, 32 levels, labs, missions and CTF challenges.**
+An interactive cybersecurity and computer science learning environment — **333 lessons, 32 levels, 29 labs, 16 missions, 19 CTF challenges.**
 
 **[Try the live app →](https://cyberlab27.pages.dev)**
 
@@ -19,12 +19,13 @@ CyberLab is a complete full-stack web application: a progressive web app (PWA) f
 
 - **333 Learning Lessons** — textbook-style lessons (topic → main point → definitions → worked example → exercises), each with a six-part "why" explanation panel
 - **32 Progressive Levels** — Levels 0–31, from orientation and diagnostics through hacking tracks to CSE gap subjects (Data Structures, DBMS, Theory of Computation, Compiler Design, AI/ML basics)
-- **Interactive Practical Labs** — hands-on labs with a live try-area beside the instructions; code genuinely runs (JavaScript and Python in the browser, other languages through a remote runner)
+- **Interactive Practical Labs** — hands-on labs with a live try-area beside the instructions; code genuinely runs: JavaScript natively in the browser, Python via Pyodide, and other languages (C, C++, Java, Go, Rust, Bash, TypeScript, SQL, PHP, C#, Kotlin, R) for real through the Judge0 CE public API. PowerShell and Julia have no free public runner, so those lessons show the exact local command instead of a fake run.
 - **Security Missions and CTF Challenges** — case-file missions with hands-on practicals, and Capture The Flag challenges whose flags are validated server-side
 - **Accounts & Progress Sync** — sign up / sign in, PBKDF2-hashed passwords, session tokens, XP, streaks and progress saved per account on any device
 - **Password Reset by Email** — 6-digit code flow via the Brevo API (code stored only as a hash, 15-minute expiry, single use)
 - **Six Languages** — English, Bangla, Spanish, German, Chinese and Hindi from a single language dropdown
 - **PWA** — installable, standalone, with an offline app shell
+- **Polished Experience** — light animations across the app, sound effects (with a Settings toggle), and a Privacy & Policy section
 
 ## How it works
 
@@ -61,6 +62,7 @@ CyberLab is a complete full-stack web application: a progressive web app (PWA) f
 - **Pages frontend** — serves the app shell, lessons and playgrounds. All lesson content is in the bundle; the app also works offline from the PWA cache and keeps local progress in the browser.
 - **Worker API** — handles sign up, sign in, sessions, progress load/save and password reset. Passwords are hashed with PBKDF2-HMAC-SHA256 (100,000 iterations, per-user salt); only SHA-256 hashes of session tokens and reset codes are stored. CORS is a strict allowlist of the production Pages domains — never a wildcard.
 - **D1 database** — `users`, `sessions`, `login_failures`, `progress_items`, `quiz_attempts`, `research_notes`, `password_resets`, `user_state`. Every query is scoped by the `user_id` taken from the session, never from the request body.
+- **Code execution** — JavaScript runs natively in the browser, Python runs via Pyodide, and other languages run through Judge0 CE (ce.judge0.com, no key required). No code is ever executed on CyberLab's own server.
 
 ## Project Structure
 
@@ -116,57 +118,6 @@ Then deploy in this order (each step is explained in SETUP.md):
 ## Development Approach
 
 I build with an **AI-assisted development workflow**: I lead the planning, feature design, implementation, integration, testing and iteration, using AI tools to move faster — and I build by understanding the architecture and the code underneath, not by copying output I cannot explain. CyberLab was developed this way end to end: curriculum design, gating/unlock logic, the Worker API, the D1 schema, the CORS allowlist and the password-reset flow were each designed, tested against the live deployment, and iterated on step by step.
-
-## Skills
-
-| Skill | Level / Proof |
-| --- | --- |
-| JavaScript | Practical — the CyberLab Worker API and the in-browser code playgrounds |
-| HTML & CSS | Practical — CyberLab's complete responsive UI and PWA shell |
-| Git & GitHub | **Confident** — Branching, Merging, Rebase, Stash |
-| Python | Working knowledge — lesson code, log-parsing and security exercises |
-| Supabase | Practical — realtime backend in my other web projects |
-| Cloudflare Workers & D1 | Practical — the CyberLab backend (auth, progress sync, password reset) |
-| SQL | Working knowledge — designed CyberLab's 8-table D1 schema |
-| C | Academic — Structured Programming coursework and CyberLab's C track |
-| Cybersecurity | Focus area — designed CyberLab's labs, missions and CTF challenges |
-| AI-Assisted Development | Workflow — see Development Approach above |
-| Godot | Learning — game development |
-
-## Research Interests
-
-Exploratory interests I am building towards:
-
-- Intrusion Detection Systems (IDS)
-- Industrial Control Systems (ICS) Security
-- Industrial Network Security
-- SWaT Dataset
-- AI/ML Applications in Cybersecurity
-
-## About Me
-
-**Md Abir Hossain** — Aspiring Software Engineer.
-
-My primary focus is **Software Engineering**. My additional strengths and interests include AI, Cybersecurity, Cloud, and Creative Production.
-
-### Education
-
-| Qualification | Institution | Year |
-| --- | --- | --- |
-| BSc in Computer Science & Engineering | Uttara University, Dhaka, Bangladesh | 2026 – Present |
-| HSC | B.A.F. Shaheen College, Kurmitola | 2025 |
-| SSC | B H Khan School and College | 2023 |
-
-### English Proficiency
-
-- **PTE Academic — Overall Score: 65** (2026)
-
-## Contact
-
-- **Email:** hossainabirdev@gmail.com
-- **GitHub:** [github.com/hossainabirdev](https://github.com/hossainabirdev)
-- **LinkedIn:** [linkedin.com/in/abir-hossain-dev](https://www.linkedin.com/in/abir-hossain-dev)
-- **Portfolio:** [WebByAbir](https://webbyabir.pages.dev)
 
 ## License
 
