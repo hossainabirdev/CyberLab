@@ -1,0 +1,43 @@
+# CyberLab — Cloudflare Pages security + PWA headers.
+# This file ships at the ROOT of the Pages deployment (next to index.html);
+# Pages applies these headers to every response automatically. No build
+# step and no dashboard setting is needed — redeploying the app ZIP is
+# enough for them to take effect.
+#
+# CSP notes (each allowance maps to a real feature of the app):
+# - script-src 'unsafe-inline': the JavaScript playground runs learner code
+#   inside a sandboxed srcdoc iframe whose inline runner script inherits
+#   this policy; without it the sandbox runner cannot start.
+# - script-src 'wasm-unsafe-eval' + cdn.jsdelivr.net: Pyodide (CPython in
+#   WebAssembly) loads its engine and .wasm from the pinned jsDelivr CDN.
+# - connect-src workers.dev: the baked-in account/sync Worker API.
+# - connect-src emkc.org: the Piston remote code-execution service used by
+#   the Universal Playground for languages that cannot run in a browser.
+# - fonts.googleapis.com / fonts.gstatic.com: the Fraunces / Sora /
+#   IBM Plex Mono webfonts imported by the stylesheet.
+# - frame-ancestors 'none' + X-Frame-Options DENY: the academy is a
+#   standalone app; nothing legitimate embeds it.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://cyberlab.hossainabirdev.workers.dev https://emkc.org https://cdn.jsdelivr.net; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+# PWA freshness: the service worker script and the manifest must always
+# be revalidated, or a new deploy's worker can be delayed by HTTP cache.
+# The worker still version-stamps its own cache per build — these headers
+# only guarantee the browser notices the new worker promptly.
+/sw.js
+  Cache-Control: no-cache
+  Content-Type: application/javascript; charset=utf-8
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+  Content-Type: application/manifest+json
+
+# Hashed bundle assets are immutable by construction (the file name IS
+# the content hash): cache them hard. This is also the battery win —
+# repeat visits download nothing.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- CyberLab is a login-first single-page app: every screen is
+       client-side state served from this one public URL. The homepage
+       (sign-in screen) is the only genuinely public, crawlable page,
+       so it is the only URL listed here. -->
+  <url>
+    <loc>https://cyberlab27.pages.dev/</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

@@ -1,0 +1,8 @@
+# CyberLab — https://cyberlab27.pages.dev/
+# The app is login-first: crawlers can reach the public homepage
+# (sign-in screen). Everything else is client-side state behind
+# sign-in, served from the same URL, so there is nothing to disallow.
+User-agent: *
+Allow: /
+
+Sitemap: https://cyberlab27.pages.dev/sitemap.xml
