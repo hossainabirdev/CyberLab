@@ -4,7 +4,9 @@
 // per-user salt), session tokens stored only as SHA-256 hashes with
 // 30-day sessions, progress/XP in Cloudflare D1 with a local browser
 // copy as backup, password-reset codes stored only as hashes (15-minute
-// expiry, single-use, email via Brevo), no selling or sharing of data,
+// expiry, single-use, email via Brevo), Judge0 CE code execution for the
+// non-local playground languages (Python via Pyodide and JavaScript run
+// locally and never leave the device), no selling or sharing of data,
 // no tracking beyond account + progress, labs only on own / local /
 // authorized targets. There is NO in-app account-deletion button, so
 // this page never claims one — deletion requests go through the contact
@@ -82,11 +84,23 @@ const SECTIONS: PolicySection[] = [
     hBn: "যা আমরা কখনো করি না",
     en: [
       "Your data is never sold, and it is never shared with advertisers. CyberLab carries no advertising trackers and no analytics beyond what your own account and progress need in order to work.",
-      "The only outside services involved in running CyberLab are Cloudflare (hosting and the database) and Brevo (password-reset email delivery).",
+      "The only outside services involved in running CyberLab are Cloudflare (hosting and the database), Brevo (password-reset email delivery), and Judge0 CE (code execution for the languages described in the next section).",
     ],
     bn: [
       "তোমার data কখনোই বিক্রি করা হয় না, আর advertiser-দের সাথে কখনোই share করা হয় না। CyberLab-এ কোনো advertising tracker নেই, আর তোমার account ও progress চলার জন্য যা লাগে তার বাইরে কোনো analytics-ও নেই।",
-      "CyberLab চালাতে বাইরের service বলতে শুধু দুটোই জড়িত: Cloudflare (hosting আর database) আর Brevo (password-reset email পাঠানো)।",
+      "CyberLab চালাতে বাইরের service বলতে জড়িত শুধু Cloudflare (hosting আর database), Brevo (password-reset email পাঠানো) আর Judge0 CE (পরের section-এ বর্ণিত language-গুলোর code চালানো)।",
+    ],
+  },
+  {
+    hEn: "Code execution & third parties",
+    hBn: "Code চালানো ও third party",
+    en: [
+      "Some playground languages run on a third-party service. When you run code in C, C++, Java, Go, Rust, Bash, TypeScript, SQL, PHP, C#, Kotlin or R, the code — and any input you type for it — is sent to Judge0 CE (ce.judge0.com), a public code-execution API, and is executed on their servers. Once a submission leaves your browser, CyberLab does not control what Judge0 does with it, so never put passwords, keys, or personal data into code you run in those languages.",
+      "Python and JavaScript are different: Python runs locally in your browser via Pyodide, and JavaScript runs locally in a browser sandbox — code in those two languages never leaves your device.",
+    ],
+    bn: [
+      "কিছু playground language তৃতীয় পক্ষের service-এ চলে। C, C++, Java, Go, Rust, Bash, TypeScript, SQL, PHP, C#, Kotlin বা R-এ code চালালে সেই code — আর তুমি তার জন্য যে input দাও, তাও — Judge0 CE (ce.judge0.com)-তে পাঠানো হয়; এটি একটি public code-execution API, আর code execute হয় তাদের server-এই। Submission তোমার browser ছেড়ে যাওয়ার পর Judge0 তা দিয়ে কী করে, CyberLab তা নিয়ন্ত্রণ করে না — তাই ওই language-গুলোতে চালানো code-এ কখনো password, key বা ব্যক্তিগত তথ্য দিও না।",
+      "Python আর JavaScript আলাদা: Python চলে তোমার browser-এর ভেতরেই, Pyodide দিয়ে, আর JavaScript চলে browser-এর local sandbox-এ — এই দুই language-এর code তোমার device ছেড়ে কখনোই যায় না।",
     ],
   },
   {
@@ -137,7 +151,7 @@ export function PrivacyView() {
       ))}
 
       <p className="text-xs text-[color:var(--dim)]">
-        {txI(lang, "Last updated: 20 November 2026. If this policy changes, the new version will be published on this page.", "সর্বশেষ হালনাগাদ: 20 November 2026। এই নীতিতে বদল এলে নতুন version এই page-এই প্রকাশ করা হবে।")}
+        {txI(lang, "Last updated: 22 November 2026. If this policy changes, the new version will be published on this page.", "সর্বশেষ হালনাগাদ: 22 November 2026। এই নীতিতে বদল এলে নতুন version এই page-এই প্রকাশ করা হবে।")}
       </p>
       <CopyrightLine />
     </div>

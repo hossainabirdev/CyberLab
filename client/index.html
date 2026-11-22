@@ -2,9 +2,39 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta name="description" content="CyberLab — hands-on cybersecurity learning: 333 lessons, labs, missions and CTF across Levels 0–31, in English and Bangla." />
+    <!-- SEO: canonical home for the app (the SPA serves everything from
+         this one public URL; lessons live behind sign-in as client-side
+         state, so this homepage is the crawlable surface). robots.txt and
+         sitemap.xml ship beside this file from client/public/. -->
+    <link rel="canonical" href="https://cyberlab27.pages.dev/" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Md Abir Hossain" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": ["WebApplication", "EducationalApplication"],
+        "name": "CyberLab",
+        "url": "https://cyberlab27.pages.dev/",
+        "description": "CyberLab — hands-on cybersecurity learning: 333 lessons, labs, missions and CTF across Levels 0–31, in English and Bangla.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "inLanguage": ["en", "bn"],
+        "author": {
+          "@type": "Person",
+          "name": "Md Abir Hossain"
+        }
+      }
+    </script>
     <!-- Open Graph + Twitter cards: link previews (LinkedIn, social, chat). -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://cyberlab27.pages.dev/" />
@@ -30,7 +60,7 @@
          assets (and would hash their names), while a manifest and its
          icons must live at stable URLs. Dynamically added manifest links
          are honoured by installability checks exactly like static ones. -->
-    <title>CyberLab</title>
+    <title>CyberLab — Cybersecurity & Computer Science Learning Platform</title>
     <script src="./src/main.tsx" type="module"></script>
   </head>
   <body>

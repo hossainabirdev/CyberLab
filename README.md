@@ -39,10 +39,14 @@ CyberLab is a complete full-stack web application: a progressive web app (PWA) f
 
 ## Technology Stack
 
-- **JavaScript**
+- **TypeScript** — the application source language
+- **React** — the frontend UI library
+- **Bun** — install, typecheck and bundling toolchain
+- **Tailwind CSS** — utility-first styling
 - **Cloudflare Workers** — the API backend (`cloudflare/worker.js`)
 - **Cloudflare D1** — the SQL database (8 tables, `cloudflare/schema.sql`)
 - Frontend: a React single-page application (TypeScript source, bundled with Bun + Tailwind CSS) hosted on Cloudflare Pages
+- `vendor/space-sdk` is a minimal local shim of the Muse platform SDK surface the client imports, so this repo builds standalone outside the Muse platform
 
 ## Architecture
 
@@ -60,9 +64,9 @@ CyberLab is a complete full-stack web application: a progressive web app (PWA) f
 ```
 
 - **Pages frontend** — serves the app shell, lessons and playgrounds. All lesson content is in the bundle; the app also works offline from the PWA cache and keeps local progress in the browser.
-- **Worker API** — handles sign up, sign in, sessions, progress load/save and password reset. Passwords are hashed with PBKDF2-HMAC-SHA256 (100,000 iterations, per-user salt); only SHA-256 hashes of session tokens and reset codes are stored. CORS is a strict allowlist of the production Pages domains — never a wildcard.
+- **Worker API** — handles sign up, sign in, sessions, progress load/save and password reset. Passwords are hashed with PBKDF2-HMAC-SHA256 (100,000 iterations, per-user salt); only SHA-256 hashes of session tokens and reset codes are stored. The 100,000-iteration count is a deliberate trade-off: it is chosen to stay inside the Cloudflare Workers free-tier CPU budget for a single request, because higher counts would push sign-ins toward the request timeout. CORS is a strict allowlist of the production Pages domains — never a wildcard.
 - **D1 database** — `users`, `sessions`, `login_failures`, `progress_items`, `quiz_attempts`, `research_notes`, `password_resets`, `user_state`. Every query is scoped by the `user_id` taken from the session, never from the request body.
-- **Code execution** — JavaScript runs natively in the browser, Python runs via Pyodide, and other languages run through Judge0 CE (ce.judge0.com, no key required). No code is ever executed on CyberLab's own server.
+- **Code execution** — JavaScript runs natively in the browser, Python runs via Pyodide, and other languages run through Judge0 CE (ce.judge0.com, no key required). Code run in those languages is sent to Judge0 CE's servers and executed there — it does not stay on your device. No code is ever executed on CyberLab's own server.
 
 ## Project Structure
 
